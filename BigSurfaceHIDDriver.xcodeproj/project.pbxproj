@@ -1,0 +1,570 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		25E5B47D29919EE5007F21D4 /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 25E5B47C29919ED7007F21D4 /* libkmod.a */; };
+		25E5B4822991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */; };
+		25E5B4832991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */; };
+		25E5B4D02991ADFE007F21D4 /* AverageClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B48D2991AB66007F21D4 /* AverageClasses.h */; };
+		25E5B4D12991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4922991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp */; };
+		25E5B4D22991ADFE007F21D4 /* VoodooI2CCSGestureEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B48C2991AB66007F21D4 /* VoodooI2CCSGestureEngine.hpp */; };
+		25E5B4D32991ADFE007F21D4 /* csgesturescroll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4912991AB66007F21D4 /* csgesturescroll.cpp */; };
+		25E5B4D42991ADFE007F21D4 /* VoodooCSGestureHIDWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B48E2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.cpp */; };
+		25E5B4D52991ADFE007F21D4 /* csgesture-softc.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4952991AB66007F21D4 /* csgesture-softc.h */; };
+		25E5B4D62991ADFE007F21D4 /* VoodooI2CCSGestureEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4932991AB66007F21D4 /* VoodooI2CCSGestureEngine.cpp */; };
+		25E5B4D72991ADFE007F21D4 /* VoodooCSGestureHIDWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B48F2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.h */; };
+		25E5B4D82991ADFE007F21D4 /* csgesturescroll.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4942991AB66007F21D4 /* csgesturescroll.h */; };
+		25E5B4D92991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4902991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp */; };
+		25E5B4DA2991AE0E007F21D4 /* VoodooI2CDigitiserTransducer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B49C2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.cpp */; };
+		25E5B4DB2991AE0E007F21D4 /* VoodooI2CDigitiserTransducer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B49D2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.hpp */; };
+		25E5B4DC2991AE0E007F21D4 /* MultitouchHelpers.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4A22991AB66007F21D4 /* MultitouchHelpers.hpp */; };
+		25E5B4DD2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B49F2991AB66007F21D4 /* VoodooI2CMultitouchEngine.hpp */; };
+		25E5B4DE2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B49E2991AB66007F21D4 /* VoodooI2CMultitouchEngine.cpp */; };
+		25E5B4DF2991AE0E007F21D4 /* VoodooI2CMultitouchInterface.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B49B2991AB66007F21D4 /* VoodooI2CMultitouchInterface.hpp */; };
+		25E5B4E02991AE0E007F21D4 /* VoodooI2CDigitiserStylus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4A02991AB66007F21D4 /* VoodooI2CDigitiserStylus.cpp */; };
+		25E5B4E12991AE0E007F21D4 /* VoodooI2CDigitiserStylus.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4A12991AB66007F21D4 /* VoodooI2CDigitiserStylus.hpp */; };
+		25E5B4E22991AE0E007F21D4 /* VoodooI2CNativeEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4972991AB66007F21D4 /* VoodooI2CNativeEngine.cpp */; };
+		25E5B4E32991AE0E007F21D4 /* VoodooI2CNativeEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4982991AB66007F21D4 /* VoodooI2CNativeEngine.hpp */; };
+		25E5B4E42991AE0E007F21D4 /* VoodooI2CMultitouchInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B49A2991AB66007F21D4 /* VoodooI2CMultitouchInterface.cpp */; };
+		25E5B4E52991AE25007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4A62991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp */; };
+		25E5B4E62991AE25007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4A82991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp */; };
+		25E5B4E72991AE25007F21D4 /* SurfaceHIDDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4B02991AB92007F21D4 /* SurfaceHIDDriver.hpp */; };
+		25E5B4E82991AE25007F21D4 /* SurfaceTouchScreenDevice.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4B42991AB92007F21D4 /* SurfaceTouchScreenDevice.hpp */; };
+		25E5B4E92991AE25007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4A72991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp */; };
+		25E5B4EA2991AE25007F21D4 /* SurfaceTypeCoverHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4AC2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.cpp */; };
+		25E5B4EB2991AE25007F21D4 /* SurfaceHIDDevice.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4B22991AB92007F21D4 /* SurfaceHIDDevice.hpp */; };
+		25E5B4EC2991AE25007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4A52991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp */; };
+		25E5B4ED2991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4AB2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp */; };
+		25E5B4EE2991AE25007F21D4 /* SurfaceTouchScreenReportDescriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4B52991AB92007F21D4 /* SurfaceTouchScreenReportDescriptor.h */; };
+		25E5B4EF2991AE25007F21D4 /* VoodooI2CHIDDevice.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4B72991AB92007F21D4 /* VoodooI2CHIDDevice.hpp */; };
+		25E5B4F02991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4AA2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp */; };
+		25E5B4F12991AE25007F21D4 /* VoodooI2CHIDDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4B62991AB92007F21D4 /* VoodooI2CHIDDevice.cpp */; };
+		25E5B4F22991AE25007F21D4 /* SurfaceTypeCoverHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4AD2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.hpp */; };
+		25E5B4F32991AE25007F21D4 /* SurfaceHIDDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4B12991AB92007F21D4 /* SurfaceHIDDevice.cpp */; };
+		25E5B4F42991AE25007F21D4 /* SurfaceTouchScreenDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4B32991AB92007F21D4 /* SurfaceTouchScreenDevice.cpp */; };
+		25E5B4F52991AE25007F21D4 /* VoodooI2CHIDTransducerWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4A42991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.cpp */; };
+		25E5B4F62991AE25007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4A92991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp */; };
+		25E5B4F72991AE25007F21D4 /* SurfaceHIDDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4AF2991AB92007F21D4 /* SurfaceHIDDriver.cpp */; };
+		25E5B4F82991AE29007F21D4 /* IPTSProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4BE2991AB96007F21D4 /* IPTSProtocol.h */; };
+		25E5B4F92991AE29007F21D4 /* IntelPreciseTouchStylusDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4BF2991AB96007F21D4 /* IntelPreciseTouchStylusDriver.cpp */; };
+		25E5B4FA2991AE29007F21D4 /* IntelPreciseTouchStylusDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4C02991AB96007F21D4 /* IntelPreciseTouchStylusDriver.hpp */; };
+		25E5B4FB2991AE29007F21D4 /* IntelPreciseTouchStylusUserClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4C12991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.cpp */; };
+		25E5B4FC2991AE29007F21D4 /* IntelPreciseTouchStylusUserClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4C22991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.hpp */; };
+		25E5B4FD2991AE29007F21D4 /* IPTSKenerlUserShared.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4C32991AB96007F21D4 /* IPTSKenerlUserShared.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		25E5B46829919DCB007F21D4 /* BigSurfaceHIDDriver.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BigSurfaceHIDDriver.kext; sourceTree = BUILT_PRODUCTS_DIR; };
+		25E5B46F29919DCB007F21D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		25E5B47C29919ED7007F21D4 /* libkmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkmod.a; path = ../../MacKernelSDK/Library/x86_64/libkmod.a; sourceTree = "<group>"; };
+		25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceMultitouchHIDEventDriver.cpp; sourceTree = "<group>"; };
+		25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SurfaceMultitouchHIDEventDriver.hpp; sourceTree = "<group>"; };
+		25E5B48C2991AB66007F21D4 /* VoodooI2CCSGestureEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CCSGestureEngine.hpp; sourceTree = "<group>"; };
+		25E5B48D2991AB66007F21D4 /* AverageClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AverageClasses.h; sourceTree = "<group>"; };
+		25E5B48E2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooCSGestureHIDWrapper.cpp; sourceTree = "<group>"; };
+		25E5B48F2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoodooCSGestureHIDWrapper.h; sourceTree = "<group>"; };
+		25E5B4902991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooCSGestureHIPointingWrapper.cpp; sourceTree = "<group>"; };
+		25E5B4912991AB66007F21D4 /* csgesturescroll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = csgesturescroll.cpp; sourceTree = "<group>"; };
+		25E5B4922991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooCSGestureHIPointingWrapper.hpp; sourceTree = "<group>"; };
+		25E5B4932991AB66007F21D4 /* VoodooI2CCSGestureEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CCSGestureEngine.cpp; sourceTree = "<group>"; };
+		25E5B4942991AB66007F21D4 /* csgesturescroll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = csgesturescroll.h; sourceTree = "<group>"; };
+		25E5B4952991AB66007F21D4 /* csgesture-softc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "csgesture-softc.h"; sourceTree = "<group>"; };
+		25E5B4972991AB66007F21D4 /* VoodooI2CNativeEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CNativeEngine.cpp; sourceTree = "<group>"; };
+		25E5B4982991AB66007F21D4 /* VoodooI2CNativeEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CNativeEngine.hpp; sourceTree = "<group>"; };
+		25E5B49A2991AB66007F21D4 /* VoodooI2CMultitouchInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CMultitouchInterface.cpp; sourceTree = "<group>"; };
+		25E5B49B2991AB66007F21D4 /* VoodooI2CMultitouchInterface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CMultitouchInterface.hpp; sourceTree = "<group>"; };
+		25E5B49C2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CDigitiserTransducer.cpp; sourceTree = "<group>"; };
+		25E5B49D2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CDigitiserTransducer.hpp; sourceTree = "<group>"; };
+		25E5B49E2991AB66007F21D4 /* VoodooI2CMultitouchEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CMultitouchEngine.cpp; sourceTree = "<group>"; };
+		25E5B49F2991AB66007F21D4 /* VoodooI2CMultitouchEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CMultitouchEngine.hpp; sourceTree = "<group>"; };
+		25E5B4A02991AB66007F21D4 /* VoodooI2CDigitiserStylus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CDigitiserStylus.cpp; sourceTree = "<group>"; };
+		25E5B4A12991AB66007F21D4 /* VoodooI2CDigitiserStylus.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CDigitiserStylus.hpp; sourceTree = "<group>"; };
+		25E5B4A22991AB66007F21D4 /* MultitouchHelpers.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MultitouchHelpers.hpp; sourceTree = "<group>"; };
+		25E5B4A42991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CHIDTransducerWrapper.cpp; sourceTree = "<group>"; };
+		25E5B4A52991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CHIDTransducerWrapper.hpp; sourceTree = "<group>"; };
+		25E5B4A62991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CMultitouchHIDEventDriver.cpp; sourceTree = "<group>"; };
+		25E5B4A72991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CMultitouchHIDEventDriver.hpp; sourceTree = "<group>"; };
+		25E5B4A82991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CPrecisionTouchpadHIDEventDriver.cpp; sourceTree = "<group>"; };
+		25E5B4A92991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CPrecisionTouchpadHIDEventDriver.hpp; sourceTree = "<group>"; };
+		25E5B4AA2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceTouchscreenHIDEventDriver.cpp; sourceTree = "<group>"; };
+		25E5B4AB2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceTouchscreenHIDEventDriver.hpp; sourceTree = "<group>"; };
+		25E5B4AC2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceTypeCoverHIDEventDriver.cpp; sourceTree = "<group>"; };
+		25E5B4AD2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceTypeCoverHIDEventDriver.hpp; sourceTree = "<group>"; };
+		25E5B4AF2991AB92007F21D4 /* SurfaceHIDDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceHIDDriver.cpp; sourceTree = "<group>"; };
+		25E5B4B02991AB92007F21D4 /* SurfaceHIDDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceHIDDriver.hpp; sourceTree = "<group>"; };
+		25E5B4B12991AB92007F21D4 /* SurfaceHIDDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceHIDDevice.cpp; sourceTree = "<group>"; };
+		25E5B4B22991AB92007F21D4 /* SurfaceHIDDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SurfaceHIDDevice.hpp; sourceTree = "<group>"; };
+		25E5B4B32991AB92007F21D4 /* SurfaceTouchScreenDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceTouchScreenDevice.cpp; sourceTree = "<group>"; };
+		25E5B4B42991AB92007F21D4 /* SurfaceTouchScreenDevice.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SurfaceTouchScreenDevice.hpp; sourceTree = "<group>"; };
+		25E5B4B52991AB92007F21D4 /* SurfaceTouchScreenReportDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SurfaceTouchScreenReportDescriptor.h; sourceTree = "<group>"; };
+		25E5B4B62991AB92007F21D4 /* VoodooI2CHIDDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooI2CHIDDevice.cpp; sourceTree = "<group>"; };
+		25E5B4B72991AB92007F21D4 /* VoodooI2CHIDDevice.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CHIDDevice.hpp; sourceTree = "<group>"; };
+		25E5B4BE2991AB96007F21D4 /* IPTSProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPTSProtocol.h; sourceTree = "<group>"; };
+		25E5B4BF2991AB96007F21D4 /* IntelPreciseTouchStylusDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntelPreciseTouchStylusDriver.cpp; sourceTree = "<group>"; };
+		25E5B4C02991AB96007F21D4 /* IntelPreciseTouchStylusDriver.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IntelPreciseTouchStylusDriver.hpp; sourceTree = "<group>"; };
+		25E5B4C12991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntelPreciseTouchStylusUserClient.cpp; sourceTree = "<group>"; };
+		25E5B4C22991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = IntelPreciseTouchStylusUserClient.hpp; sourceTree = "<group>"; };
+		25E5B4C32991AB96007F21D4 /* IPTSKenerlUserShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPTSKenerlUserShared.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		25E5B46529919DCB007F21D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				25E5B47D29919EE5007F21D4 /* libkmod.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		25E5B45E29919DCB007F21D4 = {
+			isa = PBXGroup;
+			children = (
+				25E5B46A29919DCB007F21D4 /* BigSurfaceHIDDriver */,
+				25E5B46929919DCB007F21D4 /* Products */,
+				25E5B47B29919ED7007F21D4 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		25E5B46929919DCB007F21D4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B46829919DCB007F21D4 /* BigSurfaceHIDDriver.kext */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		25E5B46A29919DCB007F21D4 /* BigSurfaceHIDDriver */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B4A32991AB66007F21D4 /* SurfaceMultitouch */,
+				25E5B4C42991AB96007F21D4 /* IPTS */,
+				25E5B4AE2991AB92007F21D4 /* HIDEventDriver */,
+				25E5B4AF2991AB92007F21D4 /* SurfaceHIDDriver.cpp */,
+				25E5B4B02991AB92007F21D4 /* SurfaceHIDDriver.hpp */,
+				25E5B4B12991AB92007F21D4 /* SurfaceHIDDevice.cpp */,
+				25E5B4B22991AB92007F21D4 /* SurfaceHIDDevice.hpp */,
+				25E5B4B32991AB92007F21D4 /* SurfaceTouchScreenDevice.cpp */,
+				25E5B4B42991AB92007F21D4 /* SurfaceTouchScreenDevice.hpp */,
+				25E5B4B52991AB92007F21D4 /* SurfaceTouchScreenReportDescriptor.h */,
+				25E5B4B62991AB92007F21D4 /* VoodooI2CHIDDevice.cpp */,
+				25E5B4B72991AB92007F21D4 /* VoodooI2CHIDDevice.hpp */,
+				25E5B46F29919DCB007F21D4 /* Info.plist */,
+			);
+			path = BigSurfaceHIDDriver;
+			sourceTree = "<group>";
+		};
+		25E5B47B29919ED7007F21D4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B47C29919ED7007F21D4 /* libkmod.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		25E5B4962991AB66007F21D4 /* CSGesture */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B48D2991AB66007F21D4 /* AverageClasses.h */,
+				25E5B48E2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.cpp */,
+				25E5B48F2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.h */,
+				25E5B4902991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp */,
+				25E5B4922991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp */,
+				25E5B4932991AB66007F21D4 /* VoodooI2CCSGestureEngine.cpp */,
+				25E5B48C2991AB66007F21D4 /* VoodooI2CCSGestureEngine.hpp */,
+				25E5B4912991AB66007F21D4 /* csgesturescroll.cpp */,
+				25E5B4942991AB66007F21D4 /* csgesturescroll.h */,
+				25E5B4952991AB66007F21D4 /* csgesture-softc.h */,
+			);
+			path = CSGesture;
+			sourceTree = "<group>";
+		};
+		25E5B4992991AB66007F21D4 /* Native */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B4972991AB66007F21D4 /* VoodooI2CNativeEngine.cpp */,
+				25E5B4982991AB66007F21D4 /* VoodooI2CNativeEngine.hpp */,
+			);
+			path = Native;
+			sourceTree = "<group>";
+		};
+		25E5B4A32991AB66007F21D4 /* SurfaceMultitouch */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B4962991AB66007F21D4 /* CSGesture */,
+				25E5B4992991AB66007F21D4 /* Native */,
+				25E5B49A2991AB66007F21D4 /* VoodooI2CMultitouchInterface.cpp */,
+				25E5B49B2991AB66007F21D4 /* VoodooI2CMultitouchInterface.hpp */,
+				25E5B49C2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.cpp */,
+				25E5B49D2991AB66007F21D4 /* VoodooI2CDigitiserTransducer.hpp */,
+				25E5B49E2991AB66007F21D4 /* VoodooI2CMultitouchEngine.cpp */,
+				25E5B49F2991AB66007F21D4 /* VoodooI2CMultitouchEngine.hpp */,
+				25E5B4A02991AB66007F21D4 /* VoodooI2CDigitiserStylus.cpp */,
+				25E5B4A12991AB66007F21D4 /* VoodooI2CDigitiserStylus.hpp */,
+				25E5B4A22991AB66007F21D4 /* MultitouchHelpers.hpp */,
+			);
+			path = SurfaceMultitouch;
+			sourceTree = "<group>";
+		};
+		25E5B4AE2991AB92007F21D4 /* HIDEventDriver */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B4A42991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.cpp */,
+				25E5B4A52991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp */,
+				25E5B4A62991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp */,
+				25E5B4A72991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp */,
+				25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */,
+				25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */,
+				25E5B4A82991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp */,
+				25E5B4A92991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp */,
+				25E5B4AA2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp */,
+				25E5B4AB2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp */,
+				25E5B4AC2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.cpp */,
+				25E5B4AD2991AB92007F21D4 /* SurfaceTypeCoverHIDEventDriver.hpp */,
+			);
+			path = HIDEventDriver;
+			sourceTree = "<group>";
+		};
+		25E5B4C42991AB96007F21D4 /* IPTS */ = {
+			isa = PBXGroup;
+			children = (
+				25E5B4BE2991AB96007F21D4 /* IPTSProtocol.h */,
+				25E5B4BF2991AB96007F21D4 /* IntelPreciseTouchStylusDriver.cpp */,
+				25E5B4C02991AB96007F21D4 /* IntelPreciseTouchStylusDriver.hpp */,
+				25E5B4C12991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.cpp */,
+				25E5B4C22991AB96007F21D4 /* IntelPreciseTouchStylusUserClient.hpp */,
+				25E5B4C32991AB96007F21D4 /* IPTSKenerlUserShared.h */,
+			);
+			path = IPTS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		25E5B46329919DCB007F21D4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				25E5B4E92991AE25007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp in Headers */,
+				25E5B4D72991ADFE007F21D4 /* VoodooCSGestureHIDWrapper.h in Headers */,
+				25E5B4EC2991AE25007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp in Headers */,
+				25E5B4DD2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.hpp in Headers */,
+				25E5B4ED2991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp in Headers */,
+				25E5B4E32991AE0E007F21D4 /* VoodooI2CNativeEngine.hpp in Headers */,
+				25E5B4832991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp in Headers */,
+				25E5B4DB2991AE0E007F21D4 /* VoodooI2CDigitiserTransducer.hpp in Headers */,
+				25E5B4DC2991AE0E007F21D4 /* MultitouchHelpers.hpp in Headers */,
+				25E5B4DF2991AE0E007F21D4 /* VoodooI2CMultitouchInterface.hpp in Headers */,
+				25E5B4E12991AE0E007F21D4 /* VoodooI2CDigitiserStylus.hpp in Headers */,
+				25E5B4FC2991AE29007F21D4 /* IntelPreciseTouchStylusUserClient.hpp in Headers */,
+				25E5B4E72991AE25007F21D4 /* SurfaceHIDDriver.hpp in Headers */,
+				25E5B4D22991ADFE007F21D4 /* VoodooI2CCSGestureEngine.hpp in Headers */,
+				25E5B4F22991AE25007F21D4 /* SurfaceTypeCoverHIDEventDriver.hpp in Headers */,
+				25E5B4F82991AE29007F21D4 /* IPTSProtocol.h in Headers */,
+				25E5B4FD2991AE29007F21D4 /* IPTSKenerlUserShared.h in Headers */,
+				25E5B4EB2991AE25007F21D4 /* SurfaceHIDDevice.hpp in Headers */,
+				25E5B4D52991ADFE007F21D4 /* csgesture-softc.h in Headers */,
+				25E5B4D12991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp in Headers */,
+				25E5B4D82991ADFE007F21D4 /* csgesturescroll.h in Headers */,
+				25E5B4EE2991AE25007F21D4 /* SurfaceTouchScreenReportDescriptor.h in Headers */,
+				25E5B4D02991ADFE007F21D4 /* AverageClasses.h in Headers */,
+				25E5B4EF2991AE25007F21D4 /* VoodooI2CHIDDevice.hpp in Headers */,
+				25E5B4F62991AE25007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp in Headers */,
+				25E5B4E82991AE25007F21D4 /* SurfaceTouchScreenDevice.hpp in Headers */,
+				25E5B4FA2991AE29007F21D4 /* IntelPreciseTouchStylusDriver.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		25E5B46729919DCB007F21D4 /* BigSurfaceHIDDriver */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 25E5B47229919DCB007F21D4 /* Build configuration list for PBXNativeTarget "BigSurfaceHIDDriver" */;
+			buildPhases = (
+				25E5B46329919DCB007F21D4 /* Headers */,
+				25E5B46429919DCB007F21D4 /* Sources */,
+				25E5B46529919DCB007F21D4 /* Frameworks */,
+				25E5B46629919DCB007F21D4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BigSurfaceHIDDriver;
+			productName = BigSurfaceHIDDriver;
+			productReference = 25E5B46829919DCB007F21D4 /* BigSurfaceHIDDriver.kext */;
+			productType = "com.apple.product-type.kernel-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		25E5B45F29919DCB007F21D4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1410;
+				TargetAttributes = {
+					25E5B46729919DCB007F21D4 = {
+						CreatedOnToolsVersion = 14.1;
+					};
+				};
+			};
+			buildConfigurationList = 25E5B46229919DCB007F21D4 /* Build configuration list for PBXProject "BigSurfaceHIDDriver" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 25E5B45E29919DCB007F21D4;
+			productRefGroup = 25E5B46929919DCB007F21D4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				25E5B46729919DCB007F21D4 /* BigSurfaceHIDDriver */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		25E5B46629919DCB007F21D4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		25E5B46429919DCB007F21D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				25E5B4F42991AE25007F21D4 /* SurfaceTouchScreenDevice.cpp in Sources */,
+				25E5B4E42991AE0E007F21D4 /* VoodooI2CMultitouchInterface.cpp in Sources */,
+				25E5B4EA2991AE25007F21D4 /* SurfaceTypeCoverHIDEventDriver.cpp in Sources */,
+				25E5B4DA2991AE0E007F21D4 /* VoodooI2CDigitiserTransducer.cpp in Sources */,
+				25E5B4F92991AE29007F21D4 /* IntelPreciseTouchStylusDriver.cpp in Sources */,
+				25E5B4F32991AE25007F21D4 /* SurfaceHIDDevice.cpp in Sources */,
+				25E5B4F52991AE25007F21D4 /* VoodooI2CHIDTransducerWrapper.cpp in Sources */,
+				25E5B4E02991AE0E007F21D4 /* VoodooI2CDigitiserStylus.cpp in Sources */,
+				25E5B4D62991ADFE007F21D4 /* VoodooI2CCSGestureEngine.cpp in Sources */,
+				25E5B4E52991AE25007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp in Sources */,
+				25E5B4D42991ADFE007F21D4 /* VoodooCSGestureHIDWrapper.cpp in Sources */,
+				25E5B4E22991AE0E007F21D4 /* VoodooI2CNativeEngine.cpp in Sources */,
+				25E5B4D32991ADFE007F21D4 /* csgesturescroll.cpp in Sources */,
+				25E5B4F12991AE25007F21D4 /* VoodooI2CHIDDevice.cpp in Sources */,
+				25E5B4E62991AE25007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp in Sources */,
+				25E5B4FB2991AE29007F21D4 /* IntelPreciseTouchStylusUserClient.cpp in Sources */,
+				25E5B4F02991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp in Sources */,
+				25E5B4D92991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp in Sources */,
+				25E5B4F72991AE25007F21D4 /* SurfaceHIDDriver.cpp in Sources */,
+				25E5B4822991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp in Sources */,
+				25E5B4DE2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		25E5B47029919DCB007F21D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = x86_64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Xia Shangning. All rights reserved.";
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		25E5B47129919DCB007F21D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = x86_64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Xia Shangning. All rights reserved.";
+				KERNEL_EXTENSION_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				KERNEL_FRAMEWORK_HEADERS = "$(PROJECT_DIR)/../../MacKernelSDK/Headers";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		25E5B47329919DCB007F21D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1.0.0;
+				DEVELOPMENT_TEAM = K8RXBXZGN4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BigSurfaceHIDDriver/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Xia Shangning. All rights reserved.";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 1.0;
+				MODULE_NAME = com.xavier.BigSurfaceHIDDriver;
+				MODULE_VERSION = 1.0.0d1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xavier.BigSurfaceHIDDriver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				WRAPPER_EXTENSION = kext;
+			};
+			name = Debug;
+		};
+		25E5B47429919DCB007F21D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1.0.0;
+				DEVELOPMENT_TEAM = K8RXBXZGN4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BigSurfaceHIDDriver/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Xia Shangning. All rights reserved.";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MARKETING_VERSION = 1.0;
+				MODULE_NAME = com.xavier.BigSurfaceHIDDriver;
+				MODULE_VERSION = 1.0.0d1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xavier.BigSurfaceHIDDriver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				WRAPPER_EXTENSION = kext;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		25E5B46229919DCB007F21D4 /* Build configuration list for PBXProject "BigSurfaceHIDDriver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				25E5B47029919DCB007F21D4 /* Debug */,
+				25E5B47129919DCB007F21D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		25E5B47229919DCB007F21D4 /* Build configuration list for PBXNativeTarget "BigSurfaceHIDDriver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				25E5B47329919DCB007F21D4 /* Debug */,
+				25E5B47429919DCB007F21D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 25E5B45F29919DCB007F21D4 /* Project object */;
+}
