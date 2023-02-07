@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		25E5B47D29919EE5007F21D4 /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 25E5B47C29919ED7007F21D4 /* libkmod.a */; };
-		25E5B4822991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */; };
-		25E5B4832991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */; };
 		25E5B4D02991ADFE007F21D4 /* AverageClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B48D2991AB66007F21D4 /* AverageClasses.h */; };
 		25E5B4D12991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B4922991AB66007F21D4 /* VoodooCSGestureHIPointingWrapper.hpp */; };
 		25E5B4D22991ADFE007F21D4 /* VoodooI2CCSGestureEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 25E5B48C2991AB66007F21D4 /* VoodooI2CCSGestureEngine.hpp */; };
@@ -62,8 +60,6 @@
 		25E5B46829919DCB007F21D4 /* BigSurfaceHIDDriver.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BigSurfaceHIDDriver.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E5B46F29919DCB007F21D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		25E5B47C29919ED7007F21D4 /* libkmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libkmod.a; path = ../../MacKernelSDK/Library/x86_64/libkmod.a; sourceTree = "<group>"; };
-		25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SurfaceMultitouchHIDEventDriver.cpp; sourceTree = "<group>"; };
-		25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SurfaceMultitouchHIDEventDriver.hpp; sourceTree = "<group>"; };
 		25E5B48C2991AB66007F21D4 /* VoodooI2CCSGestureEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VoodooI2CCSGestureEngine.hpp; sourceTree = "<group>"; };
 		25E5B48D2991AB66007F21D4 /* AverageClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AverageClasses.h; sourceTree = "<group>"; };
 		25E5B48E2991AB66007F21D4 /* VoodooCSGestureHIDWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoodooCSGestureHIDWrapper.cpp; sourceTree = "<group>"; };
@@ -220,8 +216,6 @@
 				25E5B4A52991AB92007F21D4 /* VoodooI2CHIDTransducerWrapper.hpp */,
 				25E5B4A62991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.cpp */,
 				25E5B4A72991AB92007F21D4 /* VoodooI2CMultitouchHIDEventDriver.hpp */,
-				25E5B4802991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp */,
-				25E5B4812991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp */,
 				25E5B4A82991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.cpp */,
 				25E5B4A92991AB92007F21D4 /* VoodooI2CPrecisionTouchpadHIDEventDriver.hpp */,
 				25E5B4AA2991AB92007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp */,
@@ -258,7 +252,6 @@
 				25E5B4DD2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.hpp in Headers */,
 				25E5B4ED2991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.hpp in Headers */,
 				25E5B4E32991AE0E007F21D4 /* VoodooI2CNativeEngine.hpp in Headers */,
-				25E5B4832991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.hpp in Headers */,
 				25E5B4DB2991AE0E007F21D4 /* VoodooI2CDigitiserTransducer.hpp in Headers */,
 				25E5B4DC2991AE0E007F21D4 /* MultitouchHelpers.hpp in Headers */,
 				25E5B4DF2991AE0E007F21D4 /* VoodooI2CMultitouchInterface.hpp in Headers */,
@@ -369,7 +362,6 @@
 				25E5B4F02991AE25007F21D4 /* SurfaceTouchscreenHIDEventDriver.cpp in Sources */,
 				25E5B4D92991ADFE007F21D4 /* VoodooCSGestureHIPointingWrapper.cpp in Sources */,
 				25E5B4F72991AE25007F21D4 /* SurfaceHIDDriver.cpp in Sources */,
-				25E5B4822991A6F3007F21D4 /* SurfaceMultitouchHIDEventDriver.cpp in Sources */,
 				25E5B4DE2991AE0E007F21D4 /* VoodooI2CMultitouchEngine.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
