@@ -9,10 +9,6 @@
 #ifndef VoodooI2CPrecisionTouchpadHIDEventDriver_hpp
 #define VoodooI2CPrecisionTouchpadHIDEventDriver_hpp
 
-#include <IOKit/IOLib.h>
-#include <IOKit/IOService.h>
-#include <IOKit/IOBufferMemoryDescriptor.h>
-
 #include "VoodooI2CMultitouchHIDEventDriver.hpp"
 
 #define INPUT_MODE_MOUSE 0x00

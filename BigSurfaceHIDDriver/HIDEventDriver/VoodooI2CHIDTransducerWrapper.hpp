@@ -9,12 +9,6 @@
 #ifndef VoodooI2CHIDTransducerWrapper_hpp
 #define VoodooI2CHIDTransducerWrapper_hpp
 
-#include <IOKit/IOLib.h>
-#include <IOKit/IOKitKeys.h>
-#include <IOKit/IOService.h>
-
-#include <IOKit/hid/IOHIDElement.h>
-
 #include "../SurfaceMultitouch/VoodooI2CDigitiserTransducer.hpp"
 
 class EXPORT VoodooI2CHIDTransducerWrapper : public OSObject {

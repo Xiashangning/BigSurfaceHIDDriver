@@ -346,7 +346,7 @@ bool VoodooI2CMultitouchHIDEventDriver::handleStart(IOService* provider) {
 
     OSObject* object = copyProperty(kIOHIDAbsoluteAxisBoundsRemovalPercentage, gIOServicePlane);
     OSNumber* number = OSDynamicCast(OSNumber, object);
-    if (number)
+    if (number != nullptr)
         absolute_axis_removal_percentage = number->unsigned32BitValue();
     OSSafeReleaseNULL(object);
     
@@ -703,7 +703,7 @@ bool VoodooI2CMultitouchHIDEventDriver::start(IOService* provider) {
 
     // Read QuietTimeAfterTyping configuration value (if available)
     OSNumber* quietTimeAfterTyping = OSDynamicCast(OSNumber, getProperty("QuietTimeAfterTyping"));
-    if (quietTimeAfterTyping)
+    if (quietTimeAfterTyping != nullptr)
         max_after_typing = quietTimeAfterTyping->unsigned64BitValue() * 1000000;
 
     setProperty("VoodooI2CServices Supported", kOSBooleanTrue);
@@ -818,7 +818,7 @@ void VoodooI2CMultitouchHIDEventDriver::notificationHIDAttachedHandlerGated(IOSe
         OSNumber* primary_usage_page = OSDynamicCast(OSNumber, hid_child->getProperty(kIOHIDPrimaryUsagePageKey));
         OSNumber* primary_usage= OSDynamicCast(OSNumber, hid_child->getProperty(kIOHIDPrimaryUsageKey));
         
-        if (!primary_usage_page || !primary_usage)
+        if (primary_usage_page == nullptr || primary_usage == nullptr)
             return;
         
         // ignore touchscreens

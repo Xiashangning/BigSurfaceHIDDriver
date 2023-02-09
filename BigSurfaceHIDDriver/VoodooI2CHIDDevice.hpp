@@ -9,16 +9,13 @@
 #ifndef VoodooI2CHIDDevice_hpp
 #define VoodooI2CHIDDevice_hpp
 
-#include <IOKit/IOLib.h>
-#include <IOKit/IOKitKeys.h>
-#include <IOKit/IOService.h>
 #include <IOKit/acpi/IOACPIPlatformDevice.h>
 #include <IOKit/IOInterruptEventSource.h>
 #include <IOKit/IOTimerEventSource.h>
 #include <IOKit/hid/IOHIDDevice.h>
 #include <IOKit/hid/IOHIDElement.h>
 
-#include "../../VoodooSerial/VoodooSerial/utils/helpers.hpp"
+#include "../../VoodooSerial/VoodooSerial/helpers.hpp"
 
 #define INTERRUPT_SIMULATOR_TIMEOUT 5
 #define INTERRUPT_SIMULATOR_TIMEOUT_BUSY 2
@@ -44,8 +41,6 @@
 #define I2C_VENDOR_ID_SYNAPTICS             0x06cb
 #define I2C_PRODUCT_ID_SYNAPTICS_SYNA2393   0x7a13
 
-
-#define EXPORT __attribute__((visibility("default")))
 
 typedef union {
     UInt8 data[4];
@@ -86,7 +81,7 @@ static const struct i2c_hid_quirks {
         I2C_HID_QUIRK_RESET_ON_RESUME },
     { I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
         I2C_HID_QUIRK_RESET_ON_RESUME },
-    { 0, 0 }
+    { 0, 0, 0}
 };
 
 class VoodooI2CDeviceNub;

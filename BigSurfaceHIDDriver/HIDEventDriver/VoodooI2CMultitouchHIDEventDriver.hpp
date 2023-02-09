@@ -23,7 +23,7 @@
 #include "../SurfaceMultitouch/VoodooI2CMultitouchInterface.hpp"
 #include "../SurfaceMultitouch/MultitouchHelpers.hpp"
 
-#include "../../../VoodooSerial/VoodooSerial/utils/helpers.hpp"
+#include "../../../VoodooSerial/VoodooSerial/helpers.hpp"
 
 #define kHIDUsage_Dig_Confidence kHIDUsage_Dig_TouchValid
 

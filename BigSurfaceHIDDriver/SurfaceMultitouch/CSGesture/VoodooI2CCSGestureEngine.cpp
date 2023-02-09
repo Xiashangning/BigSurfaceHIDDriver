@@ -117,7 +117,7 @@ MultitouchReturn VoodooI2CCSGestureEngine::handleInterruptReport(VoodooI2CMultit
     UInt8 transform = 0;
     OSNumber* number = OSDynamicCast(OSNumber, interface->getProperty(kIOFBTransformKey));
     
-    if (number)
+    if (number != nullptr)
         transform = number->unsigned8BitValue();
     
     for (i=0; i < event.transducers->getCount(); i++) {
@@ -913,8 +913,7 @@ bool VoodooI2CCSGestureEngine::start(IOService *service) {
     softc.infoSetup = true;
     
     OSBoolean* display_integrated = OSDynamicCast(OSBoolean, interface->getProperty(kIOHIDDisplayIntegratedKey));
-    
-    if (display_integrated)
+    if (display_integrated != nullptr)
         softc.settings.display_integrated = display_integrated->getValue();
     
     for (int i = 0;i < MAX_FINGERS; i++) {

@@ -12,7 +12,7 @@
 #include <IOKit/hid/IOHIDDevice.h>
 #include <IOKit/usb/AppleUSBDefinitions.h>
 
-#include "IPTS/IntelPreciseTouchStylusDriver.hpp"
+#include "IntelPreciseTouchStylusDriver.hpp"
 
 class EXPORT SurfaceTouchScreenDevice : public IOHIDDevice {
     OSDeclareDefaultStructors(SurfaceTouchScreenDevice);

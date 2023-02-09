@@ -11,6 +11,12 @@
 #define super VoodooI2CMultitouchHIDEventDriver
 OSDefineMetaClassAndStructors(SurfaceTouchscreenHIDEventDriver, VoodooI2CMultitouchHIDEventDriver);
 
+UInt16 abs(SInt16 x) {
+    if (x < 0)
+        return x * -1;
+    return x;
+}
+
 // Override of VoodooI2CMultitouchHIDEventDriver
 bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, VoodooI2CMultitouchEvent event) {
     bool got_transducer = false;
@@ -213,20 +219,16 @@ void SurfaceTouchscreenHIDEventDriver::forwardReport(VoodooI2CMultitouchEvent ev
     if (active_framebuffer) {
         OSNumber* number = OSDynamicCast(OSNumber, active_framebuffer->getProperty(kIOFBTransformKey));
         current_rotation = number->unsigned8BitValue() / 0x10;
-        multitouch_interface->setProperty(kIOFBTransformKey, current_rotation, 8);
+        if (multitouch_interface)
+            multitouch_interface->setProperty(kIOFBTransformKey, current_rotation, 8);
     }
     
-    if (event.contact_count) {
+    if (event.contact_count > 0) {
         // Send multitouch information to the multitouch interface
-        if (event.contact_count >= 2) {
+        if (event.contact_count == 1 && (checkStylus(timestamp, event) || checkFingerTouch(timestamp, event)))
+            return;
+        if (multitouch_interface)
             multitouch_interface->handleInterruptReport(event, timestamp);
-        } else {
-            // Process single touch data
-            if (!checkStylus(timestamp, event)) {
-                if (!checkFingerTouch(timestamp, event))
-                    multitouch_interface->handleInterruptReport(event, timestamp);
-            }
-        }
     }
 }
 

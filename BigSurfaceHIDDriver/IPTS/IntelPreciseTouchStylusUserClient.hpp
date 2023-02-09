@@ -9,7 +9,6 @@
 #ifndef IntelPreciseTouchStylusUserClient_hpp
 #define IntelPreciseTouchStylusUserClient_hpp
 
-#include <IOKit/IOService.h>
 #include <IOKit/IOUserClient.h>
 
 #include "IntelPreciseTouchStylusDriver.hpp"

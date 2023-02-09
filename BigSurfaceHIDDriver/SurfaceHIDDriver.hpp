@@ -9,10 +9,6 @@
 #ifndef SurfaceHIDDriver_hpp
 #define SurfaceHIDDriver_hpp
 
-#include <IOKit/IOService.h>
-#include <IOKit/IOWorkLoop.h>
-#include <IOKit/IOInterruptEventSource.h>
-
 #include "../../../BigSurface/BigSurface/SurfaceSerialHubDevices/SurfaceHIDNub.hpp"
 
 class SurfaceHIDDevice;
@@ -49,7 +45,6 @@ private:
     SurfaceHIDDevice*       keyboard {nullptr};
     SurfaceHIDDevice*       touchpad {nullptr};
     
-    bool    awake {true};
     bool    legacy {false};
     bool    ready {false};
     UInt8   kbd_report[32];

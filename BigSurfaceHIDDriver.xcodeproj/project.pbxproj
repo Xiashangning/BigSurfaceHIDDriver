@@ -147,9 +147,6 @@
 				25E5B4B02991AB92007F21D4 /* SurfaceHIDDriver.hpp */,
 				25E5B4B12991AB92007F21D4 /* SurfaceHIDDevice.cpp */,
 				25E5B4B22991AB92007F21D4 /* SurfaceHIDDevice.hpp */,
-				25E5B4B32991AB92007F21D4 /* SurfaceTouchScreenDevice.cpp */,
-				25E5B4B42991AB92007F21D4 /* SurfaceTouchScreenDevice.hpp */,
-				25E5B4B52991AB92007F21D4 /* SurfaceTouchScreenReportDescriptor.h */,
 				25E5B4B62991AB92007F21D4 /* VoodooI2CHIDDevice.cpp */,
 				25E5B4B72991AB92007F21D4 /* VoodooI2CHIDDevice.hpp */,
 				25E5B46F29919DCB007F21D4 /* Info.plist */,
@@ -229,6 +226,9 @@
 		25E5B4C42991AB96007F21D4 /* IPTS */ = {
 			isa = PBXGroup;
 			children = (
+				25E5B4B32991AB92007F21D4 /* SurfaceTouchScreenDevice.cpp */,
+				25E5B4B42991AB92007F21D4 /* SurfaceTouchScreenDevice.hpp */,
+				25E5B4B52991AB92007F21D4 /* SurfaceTouchScreenReportDescriptor.h */,
 				25E5B4BE2991AB96007F21D4 /* IPTSProtocol.h */,
 				25E5B4BF2991AB96007F21D4 /* IntelPreciseTouchStylusDriver.cpp */,
 				25E5B4C02991AB96007F21D4 /* IntelPreciseTouchStylusDriver.hpp */,
@@ -303,7 +303,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1410;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					25E5B46729919DCB007F21D4 = {
 						CreatedOnToolsVersion = 14.1;
@@ -404,13 +404,14 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -467,6 +468,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -493,9 +495,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = K8RXBXZGN4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BigSurfaceHIDDriver/Info.plist;
@@ -508,6 +512,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Debug;
@@ -516,9 +521,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.0.0;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = K8RXBXZGN4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BigSurfaceHIDDriver/Info.plist;
@@ -531,6 +538,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Release;

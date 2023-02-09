@@ -9,11 +9,6 @@
 #ifndef SurfaceTypeCoverHIDEventDriver_hpp
 #define SurfaceTypeCoverHIDEventDriver_hpp
 
-#include <IOKit/IOLib.h>
-#include <IOKit/IOKitKeys.h>
-#include <IOKit/IOService.h>
-#include <IOKit/IOBufferMemoryDescriptor.h>
-
 #include "VoodooI2CPrecisionTouchpadHIDEventDriver.hpp"
 
 /*

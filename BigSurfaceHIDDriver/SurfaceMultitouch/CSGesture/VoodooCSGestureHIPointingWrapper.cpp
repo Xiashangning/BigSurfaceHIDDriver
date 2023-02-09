@@ -153,43 +153,43 @@ IOReturn VoodooCSGestureHIPointingWrapper::setParamProperties(OSDictionary *dict
      */
     
     OSBoolean *clicking = OSDynamicCast(OSBoolean, dict->getObject("Clicking"));
-    if (clicking) {
+    if (clicking != nullptr) {
         gesturerec->softc.settings.tapToClickEnabled = clicking->isTrue();
     } else {
         OSNumber *clickingNum = OSDynamicCast(OSNumber, dict->getObject("Clicking"));
-        if (clickingNum) {
+        if (clickingNum != nullptr) {
             gesturerec->softc.settings.tapToClickEnabled = clickingNum->unsigned32BitValue() & 0x1;
         }
     }
     
     OSBoolean *dragging = OSDynamicCast(OSBoolean, dict->getObject("Dragging"));
-    if (dragging) {
+    if (dragging != nullptr) {
         gesturerec->softc.settings.tapDragEnabled = dragging->isTrue();
     } else {
         OSNumber *draggingNum = OSDynamicCast(OSNumber, dict->getObject("Dragging"));
-        if (draggingNum) {
+        if (draggingNum != nullptr) {
             gesturerec->softc.settings.tapDragEnabled = draggingNum->unsigned32BitValue() & 0x1;
         }
         
     }
     
     OSBoolean *hscroll  = OSDynamicCast(OSBoolean, dict->getObject("TrackpadHorizScroll"));
-    if (hscroll) {
+    if (hscroll != nullptr) {
         horizontalScroll = hscroll->isTrue();
     } else {
         OSNumber *hscrollNum = OSDynamicCast(OSNumber, dict->getObject("TrackpadHorizScroll"));
-        if (hscrollNum) {
+        if (hscrollNum != nullptr) {
             horizontalScroll = hscrollNum->unsigned32BitValue() & 0x1;
         }
     }
     
     OSBoolean* right_click = OSDynamicCast(OSBoolean, dict->getObject("TrackpadCornerSecondaryClick"));
-    if (right_click) {
+    if (right_click != nullptr) {
         gesturerec->softc.settings.literal_right_click = right_click->isTrue();
     } else {
         
         OSNumber *right_click_num = OSDynamicCast(OSNumber, dict->getObject("TrackpadCornerSecondaryClick"));
-        if (right_click_num) {
+        if (right_click_num != nullptr) {
             gesturerec->softc.settings.literal_right_click = right_click_num->unsigned32BitValue() & 0x1;
         }
     }

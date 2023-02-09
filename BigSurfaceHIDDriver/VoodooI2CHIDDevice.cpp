@@ -6,8 +6,6 @@
 //  Copyright © 2017 Alexandre Daoud. All rights reserved.
 //
 
-#include <IOKit/hid/IOHIDDevice.h>
-#include <kern/locks.h>
 #include "VoodooI2CHIDDevice.hpp"
 #include "../../../Dependencies/VoodooSerial/VoodooSerial/VoodooI2C/VoodooI2CDevice/VoodooI2CDeviceNub.hpp"
 

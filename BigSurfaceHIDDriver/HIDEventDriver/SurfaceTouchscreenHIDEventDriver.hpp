@@ -9,17 +9,8 @@
 #ifndef SurfaceTouchscreenHIDEventDriver_hpp
 #define SurfaceTouchscreenHIDEventDriver_hpp
 
-#include <IOKit/IOLib.h>
-#include <IOKit/IOKitKeys.h>
-#include <IOKit/IOService.h>
-#include <IOKit/IOWorkLoop.h>
-#include <IOKit/IOTimerEventSource.h>
 #include <IOKit/graphics/IOFramebuffer.h>
 #include <IOKit/graphics/IODisplay.h>
-
-#include "../SurfaceMultitouch/VoodooI2CDigitiserStylus.hpp"
-#include "../SurfaceMultitouch/VoodooI2CMultitouchInterface.hpp"
-#include "../SurfaceMultitouch/MultitouchHelpers.hpp"
 
 #include "VoodooI2CMultitouchHIDEventDriver.hpp"
 
