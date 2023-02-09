@@ -12,7 +12,7 @@
 #include "../../../../BigSurface/BigSurface/SurfaceManagementEngine/SurfaceManagementEngineClient.hpp"
 #include "IPTSProtocol.h"
 
-#define IPTS_BUSY_TIMEOUT       1
+#define IPTS_BUSY_TIMEOUT       2
 #define IPTS_ACTIVE_TIMEOUT     5
 #define IPTS_IDLE_TIMEOUT       50
 
@@ -45,15 +45,18 @@ public:
     
     IOReturn setPowerState(unsigned long whichState, IOService *whatDevice) override;
     
-    IOBufferMemoryDescriptor *getReceiveBufferForIndex(int idx);
+    IOBufferMemoryDescriptor *getReceiveBuffer();
     
     UInt16 getVendorID();
     UInt16 getDeviceID();
     UInt8  getMaxContacts();
     
-    IOReturn getCurrentInputBuffer(UInt8 *buffer_idx);
+    IOReturn waitInput();
     
     void handleHIDReport(const IPTSHIDReport *report);
+    
+    void processingStarted();
+    void processingEnded();
     
 private:
     SurfaceManagementEngineClient*  api {nullptr};
@@ -61,6 +64,7 @@ private:
     IOWorkLoop*                 work_loop {nullptr};
     IOCommandGate*              command_gate {nullptr};
     IOCommandGate::Action       wait_input {nullptr};
+    IOCommandGate::Action       handle_report {nullptr};
     IOInterruptEventSource*     interrupt_source {nullptr};
     IOTimerEventSource*         timer {nullptr};
     SurfaceTouchScreenDevice*   touch_screen {nullptr};
@@ -111,8 +115,9 @@ private:
     void handleMessage(SurfaceManagementEngineClient *sender, UInt8 *msg, UInt16 msg_len);
     bool isResponseError(IPTSResponse *rsp);
     
-    IOReturn getCurrentInputBufferGated(UInt8 *buffer_idx);
-    void handleHIDReportGated(IOInterruptEventSource *sender, int count);
+    IOReturn waitInputGated();
+    IOReturn handleHIDReportGated(const IPTSHIDReport *report);
+    void handleInterruptReport(IOInterruptEventSource *sender, int count);
 };
 
 #endif /* IntelPreciseTouchStylusDriver_hpp */

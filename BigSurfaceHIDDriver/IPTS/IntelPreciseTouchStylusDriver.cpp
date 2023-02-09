@@ -48,8 +48,9 @@ bool IntelPreciseTouchStylusDriver::start(IOService *provider) {
     }
     work_loop->addEventSource(command_gate);
     
-    wait_input = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::getCurrentInputBufferGated);
-    interrupt_source = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &IntelPreciseTouchStylusDriver::handleHIDReportGated));
+    wait_input = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::waitInputGated);
+    handle_report = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::handleHIDReportGated);
+    interrupt_source = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &IntelPreciseTouchStylusDriver::handleInterruptReport));
     if (!interrupt_source) {
         LOG("Failed to create interrupt source!");
         goto exit;
@@ -175,12 +176,9 @@ void IntelPreciseTouchStylusDriver::releaseResources() {
     }
 }
 
-IOBufferMemoryDescriptor *IntelPreciseTouchStylusDriver::getReceiveBufferForIndex(int idx) {
-    if (idx < 0 || idx >= IPTS_BUFFER_NUM)
-        return nullptr;
-    
-    rx_buffer[idx].buffer->retain();
-    return rx_buffer[idx].buffer;
+IOBufferMemoryDescriptor *IntelPreciseTouchStylusDriver::getReceiveBuffer() {
+    input_buffer->retain();
+    return input_buffer;
 }
 
 UInt16 IntelPreciseTouchStylusDriver::getVendorID() {
@@ -195,24 +193,31 @@ UInt8 IntelPreciseTouchStylusDriver::getMaxContacts() {
     return touch_screen->max_contacts;
 }
 
-IOReturn IntelPreciseTouchStylusDriver::getCurrentInputBuffer(UInt8 *buffer_idx) {
-    return command_gate->runAction(wait_input, buffer_idx);
+IOReturn IntelPreciseTouchStylusDriver::waitInput() {
+    return command_gate->runAction(wait_input);
 }
 
-IOReturn IntelPreciseTouchStylusDriver::getCurrentInputBufferGated(UInt8 *buffer_idx) {
+IOReturn IntelPreciseTouchStylusDriver::waitInputGated() {
     IOReturn ret = command_gate->commandSleep(&wait);
     
     if (ret != THREAD_AWAKENED)
         return kIOReturnError;
     
     if (!awake)
-        *buffer_idx = IPTS_BUFFER_NUM; // Special index indicating reconnect needed
+        return kIOReturnAborted;
     else
-        *buffer_idx = (current_doorbell - 1) % IPTS_BUFFER_NUM;
-    return kIOReturnSuccess;
+        return kIOReturnSuccess;
 }
 
-void IntelPreciseTouchStylusDriver::handleHIDReportGated(IOInterruptEventSource *sender, int count) {
+void IntelPreciseTouchStylusDriver::processingStarted() {
+    IOTakeLock(input_lock);
+}
+
+void IntelPreciseTouchStylusDriver::processingEnded() {
+    IOUnlock(input_lock);
+}
+
+void IntelPreciseTouchStylusDriver::handleInterruptReport(IOInterruptEventSource *sender, int count) {
     if (sent)
         return;
     
@@ -220,7 +225,7 @@ void IntelPreciseTouchStylusDriver::handleHIDReportGated(IOInterruptEventSource 
     sent = true;
 }
 
-void IntelPreciseTouchStylusDriver::handleHIDReport(const IPTSHIDReport *report) {
+IOReturn IntelPreciseTouchStylusDriver::handleHIDReportGated(const IPTSHIDReport *report) {
     UInt32 report_size = 0;
     switch (report->report_id) {
         case IPTS_TOUCH_REPORT_ID:
@@ -231,12 +236,17 @@ void IntelPreciseTouchStylusDriver::handleHIDReport(const IPTSHIDReport *report)
             break;
         default:
             LOG("Unknown report received! 0x%x", report->report_id);
-            return;
+            return kIOReturnInvalid;
     }
     report_to_send->setLength(report_size);
     report_to_send->writeBytes(0, report, report_size);
     sent = false;
     interrupt_source->interruptOccurred(nullptr, this, 0);
+    return kIOReturnSuccess;
+}
+
+void IntelPreciseTouchStylusDriver::handleHIDReport(const IPTSHIDReport *report) {
+    command_gate->runAction(handle_report);
 }
 
 void IntelPreciseTouchStylusDriver::pollTouchData(IOTimerEventSource *sender) {

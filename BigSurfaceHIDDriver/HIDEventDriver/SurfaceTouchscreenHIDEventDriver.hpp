@@ -57,12 +57,16 @@ class EXPORT SurfaceTouchscreenHIDEventDriver : public VoodooI2CMultitouchHIDEve
     
     bool click_mask = false;
     
-    UInt16 compare_input_x = 0;
-    UInt16 compare_input_y = 0;
+    UInt16 touch_start_x = 0;
+    UInt16 touch_start_y = 0;
+    
+    bool should_consider_long_press = true;
+    UInt16 long_press_x = 0;
+    UInt16 long_press_y = 0;
     AbsoluteTime long_press_timeout = 0;
     
     AbsoluteTime click_start = 0;
-    AbsoluteTime last_click = 0;
+    AbsoluteTime last_quick_click = 0;
     
     /* The transducer is checked for singletouch finger based operation and the pointer event dispatched. This function
      * also handles a long-press, right-click function.

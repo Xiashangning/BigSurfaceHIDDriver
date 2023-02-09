@@ -241,12 +241,9 @@ enum {
     kMethodGetDeviceInfo,
     kMethodReceiveInput,
     kMethodSendHIDReport,
+    kMethodToggleProcessingStatus,
     
     kNumberOfMethods
-};
-
-enum {
-    kIPTSNumberOfMemoryType = IPTS_BUFFER_NUM,
 };
 
 #endif /* IPTSKenerlUserShared_h */

@@ -39,8 +39,15 @@ bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, 
                 checkRotation(&x, &y);
                 
                 // Double click routine
-                if (!last_value)    // touch starts
+                if (!last_value) {  // touch starts
                     clock_get_uptime(&click_start);
+                    touch_start_x = x;
+                    touch_start_y = y;
+                    
+                    click_mask = false;
+                    should_consider_long_press = true;
+                    long_press_timeout = 0;
+                }
                 if (!value) {       // touch ends
                     AbsoluteTime click_end;
                     UInt64 nsecs;
@@ -49,7 +56,7 @@ bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, 
                     absolutetime_to_nanoseconds(click_end, &nsecs);
                     if (nsecs < 100000000) {    // < 100ms a quick click
                         clock_get_uptime(&click_end);
-                        SUB_ABSOLUTETIME(&click_end, &last_click);
+                        SUB_ABSOLUTETIME(&click_end, &last_quick_click);
                         absolutetime_to_nanoseconds(click_end, &nsecs);
                         if (nsecs < 200000000) {    // < 200ms between two quick clicks
                             
@@ -66,31 +73,31 @@ bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, 
                             IOSleep(10);
                             // The second lift event will be executed below
                             
-                            last_click = 0;
+                            last_quick_click = 0;
                         } else
-                            clock_get_uptime(&last_click);
+                            clock_get_uptime(&last_quick_click);
                     }
                 }
                 
                 // Begin long press -> right click routine.
                 // Increasing long_press_counter check will lengthen the time until execution.
                 bool right_click = false;
-                UInt16 temp_x = x;
-                UInt16 temp_y = y;
-                if (!click_mask && value) {
-                    SInt16 diff_x = compare_input_x - temp_x;
-                    SInt16 diff_y = compare_input_y - temp_y;
+                if (should_consider_long_press
+                    && (abs(touch_start_x-x) > 2*RIGHT_CLICK_PRESS_RANGE
+                        || abs(touch_start_y-y) > 2*RIGHT_CLICK_PRESS_RANGE))
+                    should_consider_long_press = false;
+                if (should_consider_long_press && !click_mask && value) {
                     if (long_press_timeout
-                        && abs(diff_x) < RIGHT_CLICK_PRESS_RANGE
-                        && abs(diff_y) < RIGHT_CLICK_PRESS_RANGE) {
+                        && abs(long_press_x-x) < RIGHT_CLICK_PRESS_RANGE
+                        && abs(long_press_y-y) < RIGHT_CLICK_PRESS_RANGE) {
                         AbsoluteTime cur_time;
                         clock_get_uptime(&cur_time);
                         if (cur_time > long_press_timeout) {
                             click_mask = true;
                             right_click = true;
                             
-                            compare_input_x = 0;
-                            compare_input_y = 0;
+                            long_press_x = 0;
+                            long_press_y = 0;
                         }
                     } else {
                         AbsoluteTime timeout;
@@ -98,8 +105,8 @@ bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, 
                         clock_get_uptime(&long_press_timeout);
                         ADD_ABSOLUTETIME(&long_press_timeout, &timeout);
                         
-                        compare_input_x = temp_x;
-                        compare_input_y = temp_y;
+                        long_press_x = x;
+                        long_press_y = y;
                     }
                 }
                 //  End long press -> right click routine.
@@ -110,22 +117,14 @@ bool SurfaceTouchscreenHIDEventDriver::checkFingerTouch(AbsoluteTime timestamp, 
                  * We are mimicking a cursor being moved into position prior to executing a drag movement.
                  * There is little noticeable affect in other circumstances. */
                 UInt32 buttons;
-                if (!last_value)
-                    buttons = 0x00;
-                else if (right_click)
+                if (right_click)
                     buttons = 0x02;
-                else if (click_mask)
+                else if (!last_value || click_mask)
                     buttons = 0x00;
                 else
                     buttons = value;
                 
                 dispatchDigitizerEventWithTiltOrientation(timestamp, transducer->secondary_id, transducer->type, 0x1, buttons, x, y);
-                
-                // Finger lifted
-                if (!value) {
-                    click_mask = false;
-                    long_press_timeout = 0;
-                }
             }
         }
     }
