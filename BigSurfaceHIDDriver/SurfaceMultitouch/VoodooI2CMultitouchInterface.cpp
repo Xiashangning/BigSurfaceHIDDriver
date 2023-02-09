@@ -54,6 +54,10 @@ bool VoodooI2CMultitouchInterface::handleIsOpen(const IOService *forClient ) con
     return false;
 }
 
+bool VoodooI2CMultitouchInterface::willTerminate(IOService *provider, IOOptionBits options) {
+    return super::willTerminate(provider, options);
+}
+
 bool VoodooI2CMultitouchInterface::setProperty(const OSSymbol* key, OSObject* object) {
     if (!super::setProperty(key, object)) {
         return false;

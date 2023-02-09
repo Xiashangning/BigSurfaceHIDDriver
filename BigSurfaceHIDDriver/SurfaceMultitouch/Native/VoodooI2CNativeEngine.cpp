@@ -185,3 +185,7 @@ void VoodooI2CNativeEngine::handleClose(IOService *forClient, IOOptionBits optio
         OSSafeReleaseNULL(voodooInputInstance);
     }
 }
+
+bool VoodooI2CNativeEngine::willTerminate(IOService *provider, IOOptionBits options) {
+    return super::willTerminate(provider, options);
+}

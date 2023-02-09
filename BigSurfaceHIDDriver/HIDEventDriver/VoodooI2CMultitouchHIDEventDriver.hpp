@@ -70,14 +70,13 @@ class EXPORT VoodooI2CMultitouchHIDEventDriver : public IOHIDEventService {
 
     void calibrateJustifiedPreferredStateElement(IOHIDElement * element, SInt32 removalPercentage);
 
-    /* Notification that a provider has been terminated, sent after recursing up the stack, in leaf-to-root order.
-     * @options The terminated provider of this object.
-     * @defer If there is pending I/O that requires this object to persist, and the provider is not opened by this object set defer to true and call the IOService::didTerminate() implementation when the I/O completes. Otherwise, leave defer set to its default value of false.
+    /* Notification that a provider will be terminated, sent after recursing up the stack, in leaf-to-root order.
+     * @provider The terminated provider of this object.
      *
      * @return *true*
      */
 
-    bool didTerminate(IOService* provider, IOOptionBits options, bool* defer) override;
+    bool willTerminate(IOService* provider, IOOptionBits options) override;
 
     /*Gets the latest value of an element by issuing a getReport request to the
      * device. Necessary due to changes between 10.11 and 10.12.
@@ -233,7 +232,7 @@ class EXPORT VoodooI2CMultitouchHIDEventDriver : public IOHIDEventService {
     IOHIDInterface* hid_interface;
     IOHIDDevice* hid_device;
     VoodooI2CMultitouchInterface* multitouch_interface;
-    bool should_have_interface = false;
+    bool should_have_interface = true;
 
     virtual void forwardReport(VoodooI2CMultitouchEvent event, AbsoluteTime timestamp);
 
