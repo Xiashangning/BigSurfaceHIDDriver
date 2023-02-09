@@ -20,13 +20,11 @@
  */
 #define IPTS_BUFFER_NUM 16
 
-#define IPTS_TOUCH_REPORT_ID        0x40
-#define IPTS_STYLUS_REPORT_ID       0x50
-
-/*
- * Made-up type for passing raw IPTS data in a HID report.
- */
-#define IPTS_HID_FRAME_TYPE_RAW 0xEE
+#define IPTS_DATA_TYPE_PAYLOAD      0x0
+#define IPTS_DATA_TYPE_ERROR        0x1
+#define IPTS_DATA_TYPE_VENDOR_DATA  0x2
+#define IPTS_DATA_TYPE_HID_REPORT   0x3
+#define IPTS_DATA_TYPE_GET_FEATURES 0x4
 
 #define IPTS_PAYLOAD_FRAME_TYPE_STYLUS  0x6
 #define IPTS_PAYLOAD_FRAME_TYPE_HEATMAP 0x8
@@ -80,12 +78,11 @@
 #define IPTS_DFT_ID_BUTTON        9
 #define IPTS_DFT_ID_PRESSURE      11
 
-struct PACKED IPTSHIDHeader {
+struct PACKED IPTSDataHeader {
+    UInt32 type;
     UInt32 size;
-    UInt8  reserved1;
-    UInt8  type;
-    UInt8  reserved2;
-    UInt8  data[];
+    UInt32 buffer;
+    UInt8  reserved[52];
 };
 
 struct PACKED IPTSPayloadHeader {
@@ -223,12 +220,15 @@ struct PACKED IPTSStylusDFTWindowRow {
     SInt8  zero;
 };
 
+#define IPTS_TOUCH_REPORT_ID    0x40
+#define IPTS_STYLUS_REPORT_ID   0x01
+
 struct PACKED IPTSHIDReport {
     UInt8 report_id;
     union {
         IPTSTouchHIDReport  touch;
         IPTSStylusHIDReport stylus;
-    } report;
+    } data;
 };
 
 struct PACKED IPTSDeviceInfo {
@@ -241,9 +241,12 @@ enum {
     kMethodGetDeviceInfo,
     kMethodReceiveInput,
     kMethodSendHIDReport,
-    kMethodToggleProcessingStatus,
     
     kNumberOfMethods
+};
+
+enum {
+    kIPTSNumberOfMemoryType = IPTS_BUFFER_NUM,
 };
 
 #endif /* IPTSKenerlUserShared_h */

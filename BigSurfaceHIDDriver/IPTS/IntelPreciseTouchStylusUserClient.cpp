@@ -23,20 +23,13 @@ const IOExternalMethodDispatch IntelPreciseTouchStylusUserClient::methods[kNumbe
         .function = (IOExternalMethodAction)&IntelPreciseTouchStylusUserClient::sMethodReceiveInput,
         .checkScalarInputCount = 0,
         .checkStructureInputSize = 0,
-        .checkScalarOutputCount = 0,
+        .checkScalarOutputCount = 1,    // rx buffer index
         .checkStructureOutputSize = 0,
     },
     [kMethodSendHIDReport] = {
         .function = (IOExternalMethodAction)&IntelPreciseTouchStylusUserClient::sMethodSendHIDReport,
         .checkScalarInputCount = 0,
         .checkStructureInputSize = sizeof(IPTSHIDReport),
-        .checkScalarOutputCount = 0,
-        .checkStructureOutputSize = 0,
-    },
-    [kMethodToggleProcessingStatus] = {
-        .function = (IOExternalMethodAction)&IntelPreciseTouchStylusUserClient::sMethodToggleProcessingStatus,
-        .checkScalarInputCount = 1,
-        .checkStructureInputSize = 0,
         .checkScalarOutputCount = 0,
         .checkStructureOutputSize = 0,
     },
@@ -52,7 +45,10 @@ IOReturn IntelPreciseTouchStylusUserClient::externalMethod(uint32_t selector, IO
 }
 
 IOReturn IntelPreciseTouchStylusUserClient::clientMemoryForType(UInt32 type, IOOptionBits *options, IOMemoryDescriptor **memory) {
-    *memory = driver->getReceiveBuffer();
+    if (type >= IPTS_BUFFER_NUM)
+        return kIOReturnBadArgument;
+    
+    *memory = driver->getReceiveBufferForIndex(type);
     *options |= kIOMapReadOnly;
     return kIOReturnSuccess;
 }
@@ -111,7 +107,11 @@ IOReturn IntelPreciseTouchStylusUserClient::sMethodReceiveInput(OSObject *target
 }
 
 IOReturn IntelPreciseTouchStylusUserClient::receiveInput(void *ref, IOExternalMethodArguments *args) {
-    return driver->waitInput();
+    UInt8 buffer_idx;
+    if (driver->getCurrentInputBuffer(&buffer_idx) != kIOReturnSuccess)
+        return kIOReturnError;
+    args->scalarOutput[0] = buffer_idx;
+    return kIOReturnSuccess;
 }
 
 IOReturn IntelPreciseTouchStylusUserClient::sMethodSendHIDReport(OSObject *target, void *ref, IOExternalMethodArguments *args) {
@@ -123,20 +123,5 @@ IOReturn IntelPreciseTouchStylusUserClient::sMethodSendHIDReport(OSObject *targe
 
 IOReturn IntelPreciseTouchStylusUserClient::sendHIDReport(void *ref, IOExternalMethodArguments *args) {
     driver->handleHIDReport(reinterpret_cast<const IPTSHIDReport *>(args->structureInput));
-    return kIOReturnSuccess;
-}
-
-IOReturn IntelPreciseTouchStylusUserClient::sMethodToggleProcessingStatus(OSObject *target, void *ref, IOExternalMethodArguments *args) {
-    IntelPreciseTouchStylusUserClient *that = OSDynamicCast(IntelPreciseTouchStylusUserClient, target);
-    if (!that)
-        return kIOReturnError;
-    return that->toggleProcessingStatus(ref, args);
-}
-
-IOReturn IntelPreciseTouchStylusUserClient::toggleProcessingStatus(void *ref, IOExternalMethodArguments *args) {
-    if (args->scalarInput[0])
-        driver->processingStarted();
-    else
-        driver->processingEnded();
     return kIOReturnSuccess;
 }

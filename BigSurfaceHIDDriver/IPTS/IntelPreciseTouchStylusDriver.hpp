@@ -16,6 +16,8 @@
 #define IPTS_ACTIVE_TIMEOUT     5
 #define IPTS_IDLE_TIMEOUT       50
 
+#define IPTS_REPORT_DESC_BUFFER_SIZE    0x460
+
 enum IPTSDeviceState {
     IPTSDeviceStateStarting,
     IPTSDeviceStateStarted,
@@ -24,10 +26,9 @@ enum IPTSDeviceState {
 };
 
 struct IPTSBufferInfo {
-    IOBufferMemoryDescriptor* buffer;
-    IODMACommand* dma_cmd;
-    void*  vaddr;
-    UInt16 len;
+    IOBufferMemoryDescriptor *buffer;
+    IODMACommand *dma_cmd;
+    void *vaddr;
     IOPhysicalAddress paddr;
 };
 
@@ -45,18 +46,15 @@ public:
     
     IOReturn setPowerState(unsigned long whichState, IOService *whatDevice) override;
     
-    IOBufferMemoryDescriptor *getReceiveBuffer();
+    IOBufferMemoryDescriptor *getReceiveBufferForIndex(int idx);
     
     UInt16 getVendorID();
     UInt16 getDeviceID();
     UInt8  getMaxContacts();
     
-    IOReturn waitInput();
+    IOReturn getCurrentInputBuffer(UInt8 *buffer_idx);
     
     void handleHIDReport(const IPTSHIDReport *report);
-    
-    void processingStarted();
-    void processingEnded();
     
 private:
     SurfaceManagementEngineClient*  api {nullptr};
@@ -64,7 +62,6 @@ private:
     IOWorkLoop*                 work_loop {nullptr};
     IOCommandGate*              command_gate {nullptr};
     IOCommandGate::Action       wait_input {nullptr};
-    IOCommandGate::Action       handle_report {nullptr};
     IOInterruptEventSource*     interrupt_source {nullptr};
     IOTimerEventSource*         timer {nullptr};
     SurfaceTouchScreenDevice*   touch_screen {nullptr};
@@ -78,12 +75,10 @@ private:
     UInt32 current_doorbell {0};
     AbsoluteTime last_activate;
     
-    IPTSTouchMode mode {IPTSModeDoorbell};
-    
-    IOBufferMemoryDescriptor *input_buffer {nullptr};
-    IOLock *input_lock {nullptr};
-    
-    IOBufferMemoryDescriptor *report_to_send {nullptr};
+    UInt32 data_buffer_size {0};
+    UInt32 feedback_buffer_size {0};
+    IPTSTouchMode mode {IPTSMultitouch};
+    IPTSHIDReport report_to_send;
     bool sent {true};
     
     IPTSBufferInfo rx_buffer[IPTS_BUFFER_NUM];
@@ -98,26 +93,23 @@ private:
     void pollTouchData(IOTimerEventSource* sender);
     
     IOReturn startDevice();
-    void stopDevice();
-    void restartDevice();
+    IOReturn restartDevice();
+    IOReturn stopDevice();
     
     IOReturn sendIPTSCommand(UInt32 code, UInt8 *data, UInt16 data_len, bool blocking = true);
     IOReturn sendFeedback(UInt32 buffer, bool blocking = true);
     IOReturn sendSetFeatureReport(UInt8 report_id, UInt8 value);
     
-    IOReturn refillBuffer(UInt32 buffer, bool blocking = true);
-    
     IOReturn allocateDMAMemory(IPTSBufferInfo *info, UInt32 size);
-    IOReturn allocateDMAResources(UInt32 dbuff_size, UInt32 fbuff_size);
+    IOReturn allocateDMAResources();
     void freeDMAMemory(IPTSBufferInfo *info, bool keep_ref = false);
     void freeDMAResources();
     
     void handleMessage(SurfaceManagementEngineClient *sender, UInt8 *msg, UInt16 msg_len);
     bool isResponseError(IPTSResponse *rsp);
     
-    IOReturn waitInputGated();
-    IOReturn handleHIDReportGated(const IPTSHIDReport *report);
-    void handleInterruptReport(IOInterruptEventSource *sender, int count);
+    IOReturn getCurrentInputBufferGated(UInt8 *buffer_idx);
+    void handleHIDReportGated(IOInterruptEventSource *sender, int count);
 };
 
 #endif /* IntelPreciseTouchStylusDriver_hpp */

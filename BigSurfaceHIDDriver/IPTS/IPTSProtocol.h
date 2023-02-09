@@ -40,15 +40,6 @@
 #define IPTS_RSP_SET_MEM_WINDOW 0x80000003
 
 /*
- * Stops the data flow from the device to the driver.
- *
- * The command must contain IPTSQuiesceIOCommand as payload.
- * The response will not contain any payload.
- */
-#define IPTS_CMD_QUIESCE_IO 0x00000004
-#define IPTS_RSP_QUIESCE_IO 0x80000004
-
-/*
  * Signals that the host is ready to receive data from the ME.
  *
  * The command must not contain any payload.
@@ -125,48 +116,46 @@
  * @IPTSCommandQuiesceIOInProgress:  Command cannot be completed until Quiesce IO is done.
  */
 enum IPTSCommandStatus {
-    IPTSCommandSuccess              = 0x00,
-    IPTSCommandInvalidParams        = 0x01,
-    IPTSCommandAccessDenied         = 0x02,
-    IPTSCommandPayloadSizeError     = 0x03,
-    IPTSCommandNotReady             = 0x04,
-    IPTSCommandRequestOutstanding   = 0x05,
-    IPTSCommandNoSensorFound        = 0x06,
-    IPTSCommandOutOfMemory          = 0x07,
-    IPTSCommandUnexpectedError      = 0x08,
-    IPTSCommandSensorDisabled       = 0x09,
-    IPTSCommandCompatCheckFail      = 0x0A,
-    IPTSCommandExpectedReset        = 0x0B,
-    IPTSCommandUnexpectedReset      = 0x0C,
-    IPTSCommandResetFailed          = 0x0D,
-    IPTSCommandTimeout              = 0x0E,
-    IPTSCommandTestModeFail         = 0x0F,
-    IPTSCommandSensorFatalFail      = 0x10,
-    IPTSCommandSensorFail           = 0x11,
-    IPTSCommandInvalidDeviceCapability = 0x12,
-    IPTSCommandQuiesceIOInProgress  = 0x13,
+    IPTSCommandSuccess              = 0,
+    IPTSCommandInvalidParams        = 1,
+    IPTSCommandAccessDenied         = 2,
+    IPTSCommandPayloadSizeError     = 3,
+    IPTSCommandNotReady             = 4,
+    IPTSCommandRequestOutstanding   = 5,
+    IPTSCommandNoSensorFound        = 6,
+    IPTSCommandOutOfMemory          = 7,
+    IPTSCommandUnexpectedError      = 8,
+    IPTSCommandSensorDisabled       = 9,
+    IPTSCommandCompatCheckFail      = 10,
+    IPTSCommandExpectedReset        = 11,
+    IPTSCommandUnexpectedReset      = 12,
+    IPTSCommandResetFailed          = 13,
+    IPTSCommandTimeout              = 14,
+    IPTSCommandTestModeFail         = 15,
+    IPTSCommandSensorFatalFail      = 16,
+    IPTSCommandSensorFail           = 17,
+    IPTSCommandInvalidDeviceCapability = 18,
+    IPTSCommandQuiesceIOInProgress  = 19,
 };
+
+
 
 /*
  * The special buffer ID that is used for direct host2me feedback.
  */
-#define IPTS_TX_BUFFER IPTS_BUFFER_NUM
-
-struct PACKED IPTSCommand {
-    UInt32 code;
-    UInt8  payload[320];
-};
+#define IPTS_HOST2ME_BUFFER IPTS_BUFFER_NUM
 
 /**
- * enum IPTSTouchMode - Configures what data the device produces and how its sent
- * @IPTSModeEvent:      The device will send an event once a buffer was filled. DO NOT USE, buggy
- *                        Older device will return singletouch data in this mode.
- * @IPTSModeDoorbell:   The device will notify the driver by incrementing the doorbell value.
- *                        Older devices will return multitouch data in this mode.
+ * enum ipts_mode - Operation mode for IPTS hardware
+ * @IPTSSingletouch: Fallback that supports only one finger and no stylus.
+ *                         The data is received as a HID report with ID 64.
+ * @IPTSMultitouch:  The "proper" operation mode for IPTS. It will return
+ *                         stylus data as well as capacitive heatmap touch data.
+ *                         This data needs to be processed in userspace.
  */
 enum IPTSTouchMode {
-    IPTSModeEvent    = 0x00,
-    IPTSModeDoorbell = 0x01,
+    IPTSSingletouch = 0,
+    IPTSMultitouch = 1,
 };
 
 /**
@@ -224,14 +213,7 @@ struct PACKED IPTSSetMemoryWindowCommand {
 };
 
 /**
- * struct IPTSQuiesceIOCommand - Payload for the QUIESCE_IO command.
- */
-struct PACKED IPTSQuiesceIOCommand {
-    UInt8 reserved[12];
-};
-
-/**
- * struct IPTSFeedbackCommand - Payload for the FEEDBACK command.
+ * struct ipts_feedback_cmd - Payload for the FEEDBACK command.
  * @buffer: The buffer that the ME should refill.
  */
 struct PACKED IPTSFeedbackCommand {
@@ -269,7 +251,7 @@ enum IPTSFeedbackDataType {
 };
 
 /**
- * struct IPTSFeedbackHeader - The contents of an IPTS feedback buffer.
+ * struct IPTSFeedbackBuffer - The contents of an IPTS feedback buffer.
  * @cmd_type: A command that should be executed on the sensor.
  * @size: The size of the payload to be written.
  * @buffer: The ID of the buffer that contains this feedback data.
@@ -278,7 +260,7 @@ enum IPTSFeedbackDataType {
  * @spi_offset: The offset at which to write the payload data.
  * @payload: Payload for the feedback command, or 0 if no payload is sent.
  */
-struct PACKED IPTSFeedbackHeader {
+struct PACKED IPTSFeedbackBuffer {
     IPTSFeedbackCommandType cmd_type;
     UInt32 size;
     UInt32 buffer;
@@ -310,41 +292,33 @@ struct PACKED IPTSResetSensorCommand {
 
 #define IPTS_REPORT_DESC_PADDING    8
 
-/**
- * struct IPTSGetReportDescriptorCommand - Payload for the GET_DESCRIPTOR command.
- * @addr_lower:  The lower 32 bits of the descriptor buffer address.
- * @addr_upper:  The upper 32 bits of the descriptor buffer address.
- * @padding_len: A magic value. Must be 8.
- */
-struct PACKED IPTSGetReportDescriptorCommand {
+struct PACKED IPTSGetReportDescriptor {
     UInt32 addr_lower;
     UInt32 addr_upper;
-    UInt32 padding_len; // MUST be IPTS_REPORT_DESC_PADDING
+    UInt32 padding_len; // MUST be IPTS_REPORT_DESC_PADDING=8
     UInt8 reserved[12];
 };
 
 /**
- * struct IPTSResponse - Data returned from the device in response to a command.
- * @code:    The command that this response answers.
- * @status:  The return code of the command.
- * @payload: The data that was produced by the command.
+ * struct IPTSCommand - A message sent from the host to the ME.
+ * @code:    The message code describing the command. (see IPTS_CMD_*)
+ * @payload: Payload for the command, or 0 if no payload is required.
  */
-struct PACKED IPTSResponse {
+struct PACKED IPTSCommand {
     UInt32 code;
-    IPTSCommandStatus status;
-    UInt8 payload[80];
+    UInt8 payload[320];
 };
 
 /**
- * struct IPTSGetDeviceInfoResponse - Vendor information of the IPTS device.
- * @vendor_id:     Vendor ID of this device.
- * @device_id:     Product ID of this device.
- * @hw_rev:        Hardware revision of this device.
- * @fw_rev:        Firmware revision of this device.
- * @data_size:     Requested size for a data buffer.
- * @feedback_size: Requested size for a feedback buffer.
- * @mode:          Mode that the device currently operates in.
- * @max_contacts:  Maximum amount of concurrent touches the sensor can process.
+ * struct IPTSGetDeviceInfoResponse - Payload for the GET_DEVICE_INFO response.
+ * @vendor_id:     Vendor ID of the touch sensor.
+ * @device_id:     Device ID of the touch sensor.
+ * @hw_rev:        Hardware revision of the touch sensor.
+ * @fw_rev:        Firmware revision of the touch sensor.
+ * @data_size:     Required size of one data buffer.
+ * @feedback_size: Required size of one feedback buffer.
+ * @mode:          Current operation mode of IPTS.
+ * @max_contacts:  The amount of concurrent touches supported by the sensor.
  */
 struct PACKED IPTSGetDeviceInfoResponse {
     UInt16 vendor_id;
@@ -355,13 +329,7 @@ struct PACKED IPTSGetDeviceInfoResponse {
     UInt32 feedback_size;
     IPTSTouchMode mode;
     UInt8 max_contacts;
-    UInt8 reserved1[3];
-    UInt8 sensor_min_eds;
-    UInt8 sensor_maj_eds;
-    UInt8 me_min_eds;
-    UInt8 me_maj_eds;
-    UInt8 intf_eds;
-    UInt8 reserved2[11];
+    UInt8 reserved[19];
 };
 
 /**
@@ -373,34 +341,15 @@ struct PACKED IPTSFeedbackResponse {
 };
 
 /**
- * enum IPTSDataType - Defines what type of data a buffer contains.
- * @IPTSDataTypeFrame:        Raw data frame.
- * @IPTSDataTypeError:        Error data.
- * @IPTSDataTypeVendor:       Vendor specific data.
- * @IPTSDataTypeHID:          A HID report.
- * @IPTSDataTypeGetFeatures:  The response to a GET_FEATURES command.
+ * struct IPTSResponse - A message sent from the ME to the host.
+ * @code:    The message code describing the response. (see IPTS_RSP_*)
+ * @status:  The status code returned by the command.
+ * @payload: Payload returned by the command.
  */
-enum IPTSDataType {
-    IPTSDataTypeFrame   = 0x00,
-    IPTSDataTypeError   = 0x01,
-    IPTSDataTypeVendor  = 0x02,
-    IPTSDataTypeHID     = 0x03,
-    IPTSDataTypeGetFeatures = 0x04,
-    IPTSDataTypeDescriptor  = 0x05,
-};
-
-/**
- * struct IPTSDataHeader - Header that is prefixed to the data in a data buffer.
- * @type: What data the buffer contains.
- * @size: How much data the buffer contains.
- * @buffer: Which buffer the data is in.
- */
-struct PACKED IPTSDataHeader {
-    IPTSDataType type;
-    UInt32 size;
-    UInt32 buffer;
-    UInt8  reserved[52];
-    UInt8  data[];
+struct PACKED IPTSResponse {
+    UInt32 code;
+    IPTSCommandStatus status;
+    UInt8 payload[80];
 };
 
 #endif /* IPTSProtocol_h */
