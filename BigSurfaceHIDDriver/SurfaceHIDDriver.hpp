@@ -17,15 +17,11 @@ class EXPORT SurfaceHIDDriver : public IOService {
 	OSDeclareDefaultStructors(SurfaceHIDDriver)
 
 public:
-    bool init(OSDictionary *properties) override;
-    
 	IOService *probe(IOService *provider, SInt32 *score) override;
 	
 	bool start(IOService *provider) override;
 	
 	void stop(IOService *provider) override;
-    
-    void free() override;
     
     IOReturn getHIDDescriptor(SurfaceHIDDeviceType device, SurfaceHIDDescriptor *desc);
     
@@ -47,10 +43,9 @@ private:
     
     bool    legacy {false};
     bool    ready {false};
-    UInt8   kbd_report[32];
-    UInt16  kbd_report_len {0};
-    UInt8   tpd_report[32];
-    UInt16  tpd_report_len {0};
+    
+    IOBufferMemoryDescriptor* kbd_report {nullptr};
+    IOBufferMemoryDescriptor* tpd_report {nullptr};
     
     void eventReceived(SurfaceHIDNub *sender, SurfaceHIDDeviceType device, UInt8 *buffer, UInt16 len);
     

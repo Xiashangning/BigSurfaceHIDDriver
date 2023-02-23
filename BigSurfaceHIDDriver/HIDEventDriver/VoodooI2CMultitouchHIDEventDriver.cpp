@@ -316,11 +316,6 @@ void VoodooI2CMultitouchHIDEventDriver::handleDigitizerTransducerReport(VoodooI2
 
     if (!has_confidence)
         transducer->is_valid = true;
-    
-#ifdef DEBUG
-    if (!handled)
-        IOLog("%s::%s Warning, handleInterruptReport called but no element of current report was found!\n", getName(), name);
-#endif
 }
 
 bool VoodooI2CMultitouchHIDEventDriver::handleStart(IOService* provider) {

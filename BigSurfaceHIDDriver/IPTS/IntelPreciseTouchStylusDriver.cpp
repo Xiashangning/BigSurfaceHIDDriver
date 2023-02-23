@@ -11,6 +11,10 @@
 
 #define LOG(str, ...)    IOLog("%s::" str "\n", "IntelPreciseTouchStylusDriver", ##__VA_ARGS__)
 
+#define IPTS_BUSY_TIMEOUT       5
+#define IPTS_ACTIVE_TIMEOUT     10
+#define IPTS_IDLE_TIMEOUT       50
+
 #define super IOService
 OSDefineMetaClassAndStructors(IntelPreciseTouchStylusDriver, IOService)
 
@@ -34,19 +38,29 @@ bool IntelPreciseTouchStylusDriver::start(IOService *provider) {
         LOG("Failed to create work loop");
         return false;
     }
+    
     command_gate = IOCommandGate::commandGate(this);
     if (!command_gate) {
         LOG("Failed to create command gate");
         goto exit;
     }
     work_loop->addEventSource(command_gate);
-    wait_input = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::getCurrentInputBufferGated);
-    interrupt_source = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &IntelPreciseTouchStylusDriver::handleHIDReportGated));
-    if (!interrupt_source) {
-        LOG("Failed to create interrupt source!");
+    
+    wait_input = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::waitInputGated);
+    handle_report = OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::handleHIDReportGated);
+    report_interrupt = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &IntelPreciseTouchStylusDriver::handleInterruptReport));
+    if (!report_interrupt) {
+        LOG("Failed to create report interrupt!");
         goto exit;
     }
-    work_loop->addEventSource(interrupt_source);
+    work_loop->addEventSource(report_interrupt);
+    status_interrupt = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &IntelPreciseTouchStylusDriver::handleInterruptStatus));
+    if (!status_interrupt) {
+        LOG("Failed to create status interrupt!");
+        goto exit;
+    }
+    work_loop->addEventSource(status_interrupt);
+    
     timer = IOTimerEventSource::timerEventSource(this, OSMemberFunctionCast(IOTimerEventSource::Action, this, &IntelPreciseTouchStylusDriver::pollTouchData));
     if (!timer) {
         LOG("Failed to create timer");
@@ -57,13 +71,21 @@ bool IntelPreciseTouchStylusDriver::start(IOService *provider) {
     // Publishing touch screen device
     touch_screen = OSTypeAlloc(SurfaceTouchScreenDevice);
     if (!touch_screen || !touch_screen->init() || !touch_screen->attach(this)) {
-        LOG("Could not init Surface Touch Screen device");
+        LOG("Failed to init Surface Touch Screen device");
         goto exit;
     }
+    
+    report_to_send = IOBufferMemoryDescriptor::withCapacity(sizeof(IPTSHIDReport), kIODirectionNone);
+    if (!report_to_send) {
+        LOG("Failed to create report buffer");
+        goto exit;
+    }
+    
     if (api->registerMessageHandler(this, OSMemberFunctionCast(SurfaceManagementEngineClient::MessageHandler, this, &IntelPreciseTouchStylusDriver::handleMessage)) != kIOReturnSuccess) {
         LOG("Failed to register receive handler");
         goto exit;
     }
+    
     if (startDevice() != kIOReturnSuccess) {
         LOG("Failed to start IPTS device!");
         goto exit;
@@ -88,6 +110,7 @@ void IntelPreciseTouchStylusDriver::stop(IOService *provider) {
             break;
         IOSleep(25);
     }
+    PMstop();
     releaseResources();
     super::stop(provider);
 }
@@ -136,10 +159,10 @@ void IntelPreciseTouchStylusDriver::releaseResources() {
         work_loop->removeEventSource(timer);
         OSSafeReleaseNULL(timer);
     }
-    if (interrupt_source) {
-        interrupt_source->disable();
-        work_loop->removeEventSource(interrupt_source);
-        OSSafeReleaseNULL(interrupt_source);
+    if (report_interrupt) {
+        report_interrupt->disable();
+        work_loop->removeEventSource(report_interrupt);
+        OSSafeReleaseNULL(report_interrupt);
     }
     if (command_gate) {
         command_gate->disable();
@@ -155,67 +178,123 @@ void IntelPreciseTouchStylusDriver::releaseResources() {
     }
 }
 
-IOBufferMemoryDescriptor *IntelPreciseTouchStylusDriver::getReceiveBufferForIndex(int idx) {
-    if (idx < 0 || idx >= IPTS_BUFFER_NUM)
-        return nullptr;
+IOBufferMemoryDescriptor *IntelPreciseTouchStylusDriver::getReceiveBuffer() {
+    input_buffer->retain();
+    return input_buffer;
+}
+
+IOReturn IntelPreciseTouchStylusDriver::getDeviceInfo(IPTSDeviceInfo *info) {
+    info->vendor_id = touch_screen->vendor_id;
+    info->product_id = touch_screen->device_id;
+    info->max_contacts = touch_screen->max_contacts;
     
-    rx_buffer[idx].buffer->retain();
-    return rx_buffer[idx].buffer;
+    if (touch_screen->version > 1) {    // newer devices
+        UInt8 buffer[IPTS_DEVICE_METADATA_REPORT_SIZE+1] = {0};
+        IOReturn ret = sendGetFeatureRequest(IPTS_DEVICE_METADATA_REPORT_ID, buffer, sizeof(buffer));
+        if (ret != kIOReturnSuccess) {
+            LOG("Failed to get device metadata");
+            return ret;
+        }
+        IPTSHIDHeader *header = reinterpret_cast<IPTSHIDHeader *>(buffer+1);
+        if (header->type != IPTS_HID_FRAME_TYPE_HID) {
+            LOG("Unexpected response type for metadata report");
+            return kIOReturnInvalid;
+        }
+        IPTSHIDHeader *frame = reinterpret_cast<IPTSHIDHeader *>(header->data);
+        if (frame->type != IPTS_HID_FRAME_TYPE_METADATA) {
+            LOG("Unexpected frame type for metadata report");
+            return kIOReturnInvalid;
+        }
+        UInt16 size = sizeof(info->meta_data);
+        if (frame->size - sizeof(frame) < size) {
+            LOG("Warning, metadata size mismatch, need %hu received %lu", size, frame->size - sizeof(frame));
+            size = frame->size - sizeof(frame);
+        }
+        memcpy(&info->meta_data, frame->data, size);
+        return kIOReturnSuccess;
+    }
+    info->meta_data.size.rows = -1; // to indicate that this device does not support metadata feature
+    return kIOReturnSuccess;
 }
 
-UInt16 IntelPreciseTouchStylusDriver::getVendorID() {
-    return touch_screen->vendor_id;
-}
-
-UInt16 IntelPreciseTouchStylusDriver::getDeviceID() {
-    return touch_screen->device_id;
-}
-
-UInt8 IntelPreciseTouchStylusDriver::getMaxContacts() {
-    return touch_screen->max_contacts;
-}
-
-IOReturn IntelPreciseTouchStylusDriver::getCurrentInputBuffer(UInt8 *buffer_idx) {
-    return command_gate->runAction(wait_input, buffer_idx);
-}
-
-IOReturn IntelPreciseTouchStylusDriver::getCurrentInputBufferGated(UInt8 *buffer_idx) {
+IOReturn IntelPreciseTouchStylusDriver::waitInputGated(UInt64 *size) {
     IOReturn ret = command_gate->commandSleep(&wait);
     
     if (ret != THREAD_AWAKENED)
         return kIOReturnError;
     
     if (!awake)
-        *buffer_idx = IPTS_BUFFER_NUM; // Special index indicating reconnect needed
-    else
-        *buffer_idx = (current_doorbell - 1) % IPTS_BUFFER_NUM;
+        *size = -1;
+    else {
+        *size = input_size;
+        daemon_handled = true;
+    }
     return kIOReturnSuccess;
 }
 
-void IntelPreciseTouchStylusDriver::handleHIDReportGated(IOInterruptEventSource *sender, int count) {
+IOReturn IntelPreciseTouchStylusDriver::waitInput(UInt64 *size) {
+    if (!daemon_handled) {
+        *size = input_size;
+        daemon_handled = true;
+        return kIOReturnSuccess;
+    } else
+        return command_gate->runAction(wait_input, size);
+}
+
+void IntelPreciseTouchStylusDriver::enterMultitouch() {
+    LOG("Multitouch processing daemon attached, enabling multitouch...");
+    multitouch = true;
+    status_interrupt->interruptOccurred(nullptr, this, 0);
+}
+
+void IntelPreciseTouchStylusDriver::exitMultitouch() {
+    LOG("Returning to single touch...");
+    multitouch = false;
+    status_interrupt->interruptOccurred(nullptr, this, 0);
+}
+
+void IntelPreciseTouchStylusDriver::processingStarted() {
+    daemon_processing = true;
+}
+
+void IntelPreciseTouchStylusDriver::processingEnded() {
+    daemon_processing = false;
+}
+
+void IntelPreciseTouchStylusDriver::handleInterruptReport(IOInterruptEventSource *sender, int count) {
     if (sent)
         return;
     
-    IOBufferMemoryDescriptor *buffer;
-    switch (report_to_send.report_id) {
-        case IPTS_TOUCH_REPORT_ID:
-            buffer = IOBufferMemoryDescriptor::withBytes(&report_to_send, sizeof(IPTSTouchHIDReport)+1, kIODirectionNone);
-            break;
-        case IPTS_STYLUS_REPORT_ID:
-            buffer = IOBufferMemoryDescriptor::withBytes(&report_to_send, sizeof(IPTSStylusHIDReport)+1, kIODirectionNone);
-            break;
-        default:
-            return;
-    }
-    touch_screen->handleReport(buffer);
-    OSSafeReleaseNULL(buffer);
+    touch_screen->handleReport(report_to_send);
     sent = true;
 }
 
-void IntelPreciseTouchStylusDriver::handleHIDReport(const IPTSHIDReport *report) {
-    report_to_send = *report;
+void IntelPreciseTouchStylusDriver::handleInterruptStatus(IOInterruptEventSource *sender, int count) {
+    sendSetFeatureReport(IPTS_DEVICE_MODE_REPORT_ID, multitouch);
+}
+
+IOReturn IntelPreciseTouchStylusDriver::handleHIDReportGated(IPTSHIDReport *report) {
+    UInt32 report_size = 0;
+    switch (report->report_id) {
+        case IPTS_TOUCH_REPORT_ID:
+            report_size = sizeof(IPTSTouchHIDReport)+1;
+            break;
+        case IPTS_STYLUS_REPORT_ID:
+            report_size = sizeof(IPTSStylusHIDReport)+1;
+            break;
+        default:
+            LOG("Unknown report received! report id: 0x%x", report->report_id);
+            return kIOReturnInvalid;
+    }
+    report_to_send->setLength(report_size);
+    report_to_send->writeBytes(0, report, report_size);
     sent = false;
-    interrupt_source->interruptOccurred(nullptr, this, 0);
+    report_interrupt->interruptOccurred(nullptr, this, 0);
+    return kIOReturnSuccess;
+}
+
+void IntelPreciseTouchStylusDriver::handleHIDReport(const IPTSHIDReport *report) {
+    command_gate->runAction(handle_report, const_cast<IPTSHIDReport *>(report));
 }
 
 void IntelPreciseTouchStylusDriver::pollTouchData(IOTimerEventSource *sender) {
@@ -243,13 +322,60 @@ void IntelPreciseTouchStylusDriver::pollTouchData(IOTimerEventSource *sender) {
     } else if (doorbell < current_doorbell) {  // MEI device has been reset
         LOG("MEI device has reset! Flushing buffers...");
         for (int i = 0; i < IPTS_BUFFER_NUM; i++)
-            sendFeedback(i);
+            refillBuffer(i, false);     // non blocking feedback
         current_doorbell = doorbell;
         timer->setTimeoutMS(IPTS_BUSY_TIMEOUT);
     } else {
-        command_gate->commandWakeup(&wait);
+        UInt32 buffer = current_doorbell % IPTS_BUFFER_NUM;
+        IPTSDataHeader *header = reinterpret_cast<IPTSDataHeader *>(rx_buffer[buffer].vaddr);
+        if (header->size != 0) {
+            switch (header->type) {
+                case IPTSDataTypeFrame:
+                    // fake a hid report
+                    if (!daemon_processing) {
+                        UInt8 *temp = reinterpret_cast<UInt8 *>(input_buffer->getBytesNoCopy());
+                        IPTSHIDHeader *h = reinterpret_cast<IPTSHIDHeader *>(temp+3);
+                        h->type = IPTS_HID_FRAME_TYPE_RAW;
+                        h->size = header->size + sizeof(IPTSHIDHeader);
+                        input_buffer->writeBytes(10, header->data, header->size);
+                        input_size = 10 + header->size;
+                        daemon_handled = false;
+                        command_gate->commandWakeup(&wait);
+                    }
+                    break;
+                case IPTSDataTypeHID:
+                    if (header->data[0] == IPTS_SINGLETOUCH_REPORT_ID) {
+                        // directly handle the single touch report
+                        report_to_send->setLength(sizeof(IPTSTouchHIDReport)+1);
+                        IPTSHIDReport *buffer = reinterpret_cast<IPTSHIDReport *>(report_to_send->getBytesNoCopy());
+                        memset(buffer, 0, report_to_send->getLength());
+                        report_to_send->writeBytes(0, header->data, header->size);
+                        buffer->report.touch.contact_num = buffer->report.touch.fingers[0].touch;
+                        sent = false;
+                        report_interrupt->interruptOccurred(nullptr, this, 0);
+                    } else if (IPTS_HID_REPORT_IS_TOUCH(header->data[0])) {
+                        // call userspace daemon to process multitouch heatmap & stylus data
+                        if (!daemon_processing) {    // if the userspace daemon has finished processing
+                            input_buffer->writeBytes(0, header->data, header->size);
+                            input_size = header->size;
+                            daemon_handled = false;
+                            command_gate->commandWakeup(&wait);
+                        }
+                    }
+                    break;
+                case IPTSDataTypeGetFeatures:
+                    feature_report = header->data;
+                    command_gate->commandWakeup(&get_feature);
+                    break;
+                default:
+                    LOG("Got data with type %d", header->type);
+                    break;
+            }
+        }
         
-        sendFeedback(current_doorbell % IPTS_BUFFER_NUM, false);   // non blocking feedback
+        if (refillBuffer(buffer, false) != kIOReturnSuccess)
+            LOG("Failed to send feedback buffer");
+        
         current_doorbell++;
         busy = true;
         clock_get_uptime(&last_activate);
@@ -273,8 +399,7 @@ IOReturn IntelPreciseTouchStylusDriver::sendIPTSCommand(UInt32 code, UInt8 *data
     return ret;
 }
 
-IOReturn IntelPreciseTouchStylusDriver::sendFeedback(UInt32 buffer, bool blocking)
-{
+IOReturn IntelPreciseTouchStylusDriver::sendFeedback(UInt32 buffer, bool blocking) {
     IPTSFeedbackCommand cmd;
 
     memset(&cmd, 0, sizeof(IPTSFeedbackCommand));
@@ -283,25 +408,73 @@ IOReturn IntelPreciseTouchStylusDriver::sendFeedback(UInt32 buffer, bool blockin
     return sendIPTSCommand(IPTS_CMD_FEEDBACK, reinterpret_cast<UInt8 *>(&cmd), sizeof(IPTSFeedbackCommand), blocking);
 }
 
-IOReturn IntelPreciseTouchStylusDriver::sendSetFeatureReport(UInt8 report_id, UInt8 value)
-{
-    IPTSFeedbackBuffer *feedback;
+IOReturn IntelPreciseTouchStylusDriver::getFeatureRequestGated(UInt8* report_id, UInt16* size) {
+    feature_report = nullptr;
+    memset(tx_buffer.vaddr, 0, tx_buffer.len);
+    
+    IPTSFeedbackHeader *feedback = reinterpret_cast<IPTSFeedbackHeader *>(tx_buffer.vaddr);
+    feedback->cmd_type = IPTSFeedbackCommandTypeNone;
+    feedback->data_type = IPTSFeedbackDataTypeGetFeatures;
+    feedback->buffer = IPTS_TX_BUFFER;
+    feedback->size = *size;
+    feedback->payload[0] = *report_id;
 
-    memset(tx_buffer.vaddr, 0, feedback_buffer_size);
-    feedback = reinterpret_cast<IPTSFeedbackBuffer *>(tx_buffer.vaddr);
+    IOReturn ret = sendFeedback(IPTS_TX_BUFFER, false);
+    if (ret != kIOReturnSuccess) {
+        LOG("Failed to send get feature request");
+        return ret;
+    }
+    
+    AbsoluteTime abstime, deadline;
+    nanoseconds_to_absolutetime(500 * 1000000, &abstime);   // 500ms
+    clock_absolutetime_interval_to_deadline(abstime, &deadline);
+    ret = command_gate->commandSleep(&get_feature, deadline, THREAD_INTERRUPTIBLE);
+    if (ret == THREAD_TIMED_OUT) {
+        LOG("Timeout waiting for response");
+        return kIOReturnTimeout;
+    }
+    
+    if (!feature_report)
+        return kIOReturnInvalid;
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn IntelPreciseTouchStylusDriver::sendGetFeatureRequest(UInt8 report_id, UInt8 *report, UInt16 size) {
+    IOReturn ret = command_gate->runAction(OSMemberFunctionCast(IOCommandGate::Action, this, &IntelPreciseTouchStylusDriver::getFeatureRequestGated), &report_id, &size);
+    if (ret != kIOReturnSuccess)
+        return ret;
+    
+    memcpy(report, feature_report, size);
+    
+    return kIOReturnSuccess;
+}
+
+IOReturn IntelPreciseTouchStylusDriver::sendSetFeatureReport(UInt8 report_id, UInt8 value) {
+    IPTSFeedbackHeader *feedback;
+    memset(tx_buffer.vaddr, 0, tx_buffer.len);
+    
+    feedback = reinterpret_cast<IPTSFeedbackHeader *>(tx_buffer.vaddr);
 
     feedback->cmd_type = IPTSFeedbackCommandTypeNone;
     feedback->data_type = IPTSFeedbackDataTypeSetFeatures;
-    feedback->buffer = IPTS_HOST2ME_BUFFER;
+    feedback->buffer = IPTS_TX_BUFFER;
     feedback->size = 2;
     feedback->payload[0] = report_id;
     feedback->payload[1] = value;
 
-    return sendFeedback(IPTS_HOST2ME_BUFFER);
+    return sendFeedback(IPTS_TX_BUFFER);
 }
 
-IOReturn IntelPreciseTouchStylusDriver::startDevice()
-{
+IOReturn IntelPreciseTouchStylusDriver::refillBuffer(UInt32 buffer, bool blocking) {
+//    memset(feedback_buffer[buffer].vaddr, 0, feedback_buffer[buffer].len);
+//    IPTSFeedbackHeader *header = reinterpret_cast<IPTSFeedbackHeader *>(feedback_buffer[buffer].vaddr);
+//    header->buffer = buffer;
+    
+    return sendFeedback(buffer, blocking);
+}
+
+IOReturn IntelPreciseTouchStylusDriver::startDevice() {
     if (state != IPTSDeviceStateStopped)
         return kIOReturnBusy;
     
@@ -311,31 +484,25 @@ IOReturn IntelPreciseTouchStylusDriver::startDevice()
     return sendIPTSCommand(IPTS_CMD_GET_DEVICE_INFO, nullptr, 0);
 }
 
-IOReturn IntelPreciseTouchStylusDriver::stopDevice()
-{
+void IntelPreciseTouchStylusDriver::stopDevice() {
     if (state == IPTSDeviceStateStopping || state == IPTSDeviceStateStopped)
-        return kIOReturnBusy;
-    
+        return;
     state = IPTSDeviceStateStopping;
     
-    timer->cancelTimeout();
-    timer->disable();
-    
-    freeDMAResources();
-    IOReturn ret = sendFeedback(0);
-    if (ret == kIOReturnNoDevice)
+    if (mode == IPTSModeDoorbell) {
+        timer->cancelTimeout();
+        timer->disable();
+    }
+       
+    if (sendFeedback(0) == kIOReturnNoDevice)
         state = IPTSDeviceStateStopped;
-    
-    return ret;
 }
 
-IOReturn IntelPreciseTouchStylusDriver::restartDevice()
-{
+void IntelPreciseTouchStylusDriver::restartDevice() {
     if (restart)
-        return kIOReturnBusy;
+        return;
     restart = true;
-    
-    return stopDevice();
+    stopDevice();
 }
 
 void IntelPreciseTouchStylusDriver::handleMessage(SurfaceManagementEngineClient *sender, UInt8 *msg, UInt16 msg_len) {    
@@ -347,70 +514,82 @@ void IntelPreciseTouchStylusDriver::handleMessage(SurfaceManagementEngineClient 
     switch (rsp->code) {
         case IPTS_RSP_GET_DEVICE_INFO: {
             IPTSGetDeviceInfoResponse device_info;
-            memcpy(&device_info, rsp->payload, sizeof(IPTSGetDeviceInfoResponse));
+            memcpy(&device_info, rsp->payload, sizeof(device_info));
             touch_screen->vendor_id = device_info.vendor_id;
             touch_screen->device_id = device_info.device_id;
-            touch_screen->version = device_info.hw_rev;
+            touch_screen->version = device_info.intf_eds;
             touch_screen->max_contacts = device_info.max_contacts;
-            data_buffer_size = device_info.data_size;
-            feedback_buffer_size = device_info.feedback_size;
-            mode = device_info.mode;
             
-            if (allocateDMAResources() != kIOReturnSuccess) {
+            if (allocateDMAResources(device_info.data_size, device_info.feedback_size) != kIOReturnSuccess) {
                 LOG("Failed to allocate resources");
                 ret = kIOReturnNoMemory;
                 break;
             }
             
-//            IPTSGetReportDescriptor get_desc;
-//            memset(&get_desc, 0, sizeof(IPTSGetReportDescriptor));
-//            memset(report_desc_buffer.vaddr, 0, IPTS_REPORT_DESC_BUFFER_SIZE);
-//            get_desc.addr_lower = report_desc_buffer.paddr & 0xffffffff;
-//            get_desc.addr_upper = report_desc_buffer.paddr >> 32;
-//            get_desc.padding_len = IPTS_REPORT_DESC_PADDING;
-//            ret = sendIPTSCommand(IPTS_CMD_GET_REPORT_DESC, reinterpret_cast<UInt8 *>(&get_desc), sizeof(IPTSGetReportDescriptor));
-//            break;
-//        }
-//        case IPTS_RSP_GET_REPORT_DESC: {
-//            IPTSDataHeader header;
-//            memcpy(&header, report_desc_buffer.vaddr, sizeof(IPTSDataHeader));
-//            UInt16 desc_len = header.size - IPTS_REPORT_DESC_PADDING;
-//            touch_screen->hid_desc = IOBufferMemoryDescriptor::withBytes((UInt8 *)report_desc_buffer.vaddr + sizeof(IPTSDataHeader) + IPTS_REPORT_DESC_PADDING, desc_len, kIODirectionNone);
+//            if (device_info.intf_eds > 1) {
+//                IPTSGetReportDescriptorCommand get_desc;
+//                memset(&get_desc, 0, sizeof(get_desc));
+//                memset(report_desc_buffer.vaddr, 0, report_desc_buffer.len);
+//
+//                get_desc.addr_lower = report_desc_buffer.paddr & 0xffffffff;
+//                get_desc.addr_upper = report_desc_buffer.paddr >> 32;
+//                get_desc.padding_len = IPTS_REPORT_DESC_PADDING;
+//                ret = sendIPTSCommand(IPTS_CMD_GET_REPORT_DESC, reinterpret_cast<UInt8 *>(&get_desc), sizeof(get_desc));
+//                break;
+//            }
             
-            IPTSSetModeCommand set_mode_cmd;
-            memset(&set_mode_cmd, 0, sizeof(IPTSSetModeCommand));
-            set_mode_cmd.mode = IPTSMultitouch;
-            ret = sendIPTSCommand(IPTS_CMD_SET_MODE, reinterpret_cast<UInt8 *>(&set_mode_cmd), sizeof(IPTSSetModeCommand));
+            IPTSSetModeCommand set_mode;
+            memset(&set_mode, 0, sizeof(set_mode));
+            set_mode.mode = mode;
+            ret = sendIPTSCommand(IPTS_CMD_SET_MODE, reinterpret_cast<UInt8 *>(&set_mode), sizeof(set_mode));
             break;
         }
+//        case IPTS_RSP_GET_REPORT_DESC: {
+//            IPTSDataHeader *header = reinterpret_cast<IPTSDataHeader *>(report_desc_buffer.vaddr);
+//
+//            if (header->type != IPTSDataTypeDescriptor) {
+//                ret = kIOReturnInvalid;
+//                break;
+//            }
+//            touch_screen->descriptor = &header->data[IPTS_REPORT_DESC_PADDING];
+//            touch_screen->descriptor_size = header->size - IPTS_REPORT_DESC_PADDING;
+//
+//            IPTSSetModeCommand set_mode;
+//            memset(&set_mode, 0, sizeof(set_mode));
+//            set_mode.mode = mode;
+//            ret = sendIPTSCommand(IPTS_CMD_SET_MODE, reinterpret_cast<UInt8 *>(&set_mode), sizeof(set_mode));
+//            break;
+//        }
         case IPTS_RSP_SET_MODE: {
-            mode = IPTSMultitouch;
-            
-            IPTSSetMemoryWindowCommand set_mem_cmd;
-            memset(&set_mem_cmd, 0, sizeof(IPTSSetMemoryWindowCommand));
+            IPTSSetMemoryWindowCommand set_mem;
+            memset(&set_mem, 0, sizeof(set_mem));
             for (int i = 0; i < IPTS_BUFFER_NUM; i++) {
-                set_mem_cmd.data_buffer_addr_lower[i] = rx_buffer[i].paddr & 0xffffffff;
-                set_mem_cmd.data_buffer_addr_upper[i] = rx_buffer[i].paddr >> 32;
+                set_mem.data_buffer_addr_lower[i] = rx_buffer[i].paddr & 0xffffffff;
+                set_mem.data_buffer_addr_upper[i] = rx_buffer[i].paddr >> 32;
 
-                set_mem_cmd.feedback_buffer_addr_lower[i] = feedback_buffer[i].paddr & 0xffffffff;
-                set_mem_cmd.feedback_buffer_addr_upper[i] = feedback_buffer[i].paddr >> 32;
+                set_mem.feedback_buffer_addr_lower[i] = feedback_buffer[i].paddr & 0xffffffff;
+                set_mem.feedback_buffer_addr_upper[i] = feedback_buffer[i].paddr >> 32;
             }
-            set_mem_cmd.workqueue_addr_lower = workqueue_buffer.paddr & 0xffffffff;
-            set_mem_cmd.workqueue_addr_upper = workqueue_buffer.paddr >> 32;
+            set_mem.workqueue_addr_lower = workqueue_buffer.paddr & 0xffffffff;
+            set_mem.workqueue_addr_upper = workqueue_buffer.paddr >> 32;
 
-            set_mem_cmd.doorbell_addr_lower = doorbell_buffer.paddr & 0xffffffff;
-            set_mem_cmd.doorbell_addr_upper = doorbell_buffer.paddr >> 32;
+            set_mem.doorbell_addr_lower = doorbell_buffer.paddr & 0xffffffff;
+            set_mem.doorbell_addr_upper = doorbell_buffer.paddr >> 32;
 
-            set_mem_cmd.host2me_addr_lower = tx_buffer.paddr & 0xffffffff;
-            set_mem_cmd.host2me_addr_upper = tx_buffer.paddr >> 32;
+            set_mem.host2me_addr_lower = tx_buffer.paddr & 0xffffffff;
+            set_mem.host2me_addr_upper = tx_buffer.paddr >> 32;
 
-            set_mem_cmd.workqueue_size = IPTS_WORKQUEUE_SIZE;
-            set_mem_cmd.workqueue_item_size = IPTS_WORKQUEUE_ITEM_SIZE;
+            set_mem.workqueue_size = IPTS_WORKQUEUE_SIZE;
+            set_mem.workqueue_item_size = IPTS_WORKQUEUE_ITEM_SIZE;
 
-            ret = sendIPTSCommand(IPTS_CMD_SET_MEM_WINDOW, reinterpret_cast<UInt8 *>(&set_mem_cmd), sizeof(IPTSSetMemoryWindowCommand));
+            ret = sendIPTSCommand(IPTS_CMD_SET_MEM_WINDOW, reinterpret_cast<UInt8 *>(&set_mem), sizeof(set_mem));
             break;
         }
         case IPTS_RSP_SET_MEM_WINDOW:
+            ret = sendIPTSCommand(IPTS_CMD_READY_FOR_DATA, nullptr, 0);
+            if (ret != kIOReturnSuccess)
+                break;
+            
             if (!touch_screen_started) {
                 if (!touch_screen->start(this)) {
                     touch_screen->detach(this);
@@ -424,37 +603,48 @@ void IntelPreciseTouchStylusDriver::handleMessage(SurfaceManagementEngineClient 
             LOG("IPTS Device is ready");
             state = IPTSDeviceStateStarted;
             
-            ret = sendIPTSCommand(IPTS_CMD_READY_FOR_DATA, nullptr, 0);
-            if (ret != kIOReturnSuccess)
-                break;
-            if (touch_screen->vendor_id == 0x045e && touch_screen->device_id & 0x0100)
-                ret = sendSetFeatureReport(0x5, 0x1);   // magic command to enable multitouch on newer devices
-            if (ret != kIOReturnSuccess)
-                LOG("Failed to enable multitouch on SP7 and newer devices!");
-            
-            timer->enable();
-            timer->setTimeoutMS(IPTS_IDLE_TIMEOUT);
-            
+            if (mode == IPTSModeDoorbell) {
+                timer->enable();
+                timer->setTimeoutMS(IPTS_IDLE_TIMEOUT);
+            }
+            break;
+        case IPTS_RSP_READY_FOR_DATA:
+            if (mode == IPTSModeEvent) {
+                LOG("Warning, event mode unsupported as it is too lossy and buggy!");
+                // Event mode:
+                // get current doorbell, manually increase it by 1
+                // use doorbell % IPTS_BUFFER_NUM to get corresponding buffer and process it
+                // send IPTS_CMD_READY_FOR_DATA for requesting new data
+            }
             break;
         case IPTS_RSP_FEEDBACK: {
             if (state != IPTSDeviceStateStopping)
                 break;
-
+            
             IPTSFeedbackResponse feedback;
-            memcpy(&feedback, rsp->payload, sizeof(IPTSFeedbackResponse));
+            memcpy(&feedback, rsp->payload, sizeof(feedback));
             if (feedback.buffer < IPTS_BUFFER_NUM - 1) {
-                ret = sendFeedback(feedback.buffer + 1);
-                break;
-            }
-            ret = sendIPTSCommand(IPTS_CMD_CLEAR_MEM_WINDOW, nullptr, 0);
+                ret = refillBuffer(feedback.buffer + 1);
+            } else if (feedback.buffer == IPTS_BUFFER_NUM - 1) {
+                IPTSFeedbackHeader *header;
+                memset(tx_buffer.vaddr, 0, tx_buffer.len);
+                
+                header = reinterpret_cast<IPTSFeedbackHeader *>(tx_buffer.vaddr);
+                header->cmd_type = IPTSFeedbackCommandTypeSoftReset;
+                header->buffer = IPTS_TX_BUFFER;
+                ret = sendFeedback(IPTS_TX_BUFFER);
+            } else
+                ret = sendIPTSCommand(IPTS_CMD_CLEAR_MEM_WINDOW, nullptr, 0);
             break;
         }
         case IPTS_RSP_CLEAR_MEM_WINDOW:
+            freeDMAResources();
             state = IPTSDeviceStateStopped;
             if (restart)
                 ret = startDevice();
             break;
         default:
+            LOG("Unhandled response code: 0x%08x", rsp->code);
             break;
     }
     if (ret != kIOReturnSuccess) {
@@ -486,8 +676,7 @@ bool IntelPreciseTouchStylusDriver::isResponseError(IPTSResponse *rsp) {
     LOG("Command 0x%08x failed: %d", rsp->code, rsp->status);
     if (rsp->status == IPTSCommandExpectedReset || rsp->status == IPTSCommandUnexpectedReset) {
         LOG("Sensor was reset");
-        if (restartDevice())
-            LOG("Failed to restart IPTS");
+        restartDevice();
     }
     return true;
 }
@@ -517,31 +706,35 @@ IOReturn IntelPreciseTouchStylusDriver::allocateDMAMemory(IPTSBufferInfo *info, 
     }
     info->paddr = seg.fIOVMAddr;
     info->vaddr = buf->getBytesNoCopy();
+    info->len = size;
     info->buffer = buf;
     info->dma_cmd = cmd;
 
     return kIOReturnSuccess;
 }
 
-IOReturn IntelPreciseTouchStylusDriver::allocateDMAResources()
+IOReturn IntelPreciseTouchStylusDriver::allocateDMAResources(UInt32 dbuff_size, UInt32 fbuff_size)
 {
-    IPTSBufferInfo *buffers = rx_buffer;
     for (int i = 0; i < IPTS_BUFFER_NUM; i++) {
-        if (allocateDMAMemory(buffers+i, data_buffer_size) != kIOReturnSuccess)
+        if (allocateDMAMemory(rx_buffer+i, dbuff_size) != kIOReturnSuccess)
             goto release_resources;
     }
 
-    buffers = feedback_buffer;
     for (int i = 0; i < IPTS_BUFFER_NUM; i++) {
-        if (allocateDMAMemory(buffers+i, feedback_buffer_size) != kIOReturnSuccess)
+        if (allocateDMAMemory(feedback_buffer+i, fbuff_size) != kIOReturnSuccess)
             goto release_resources;
     }
 
     if (allocateDMAMemory(&doorbell_buffer, sizeof(UInt32)) != kIOReturnSuccess ||
         allocateDMAMemory(&workqueue_buffer, sizeof(UInt32)) != kIOReturnSuccess ||
-        allocateDMAMemory(&tx_buffer, feedback_buffer_size) != kIOReturnSuccess ||
-        allocateDMAMemory(&report_desc_buffer, IPTS_REPORT_DESC_BUFFER_SIZE) != kIOReturnSuccess)
+        allocateDMAMemory(&tx_buffer, fbuff_size) != kIOReturnSuccess ||
+        allocateDMAMemory(&report_desc_buffer, dbuff_size + 8) != kIOReturnSuccess)
         goto release_resources;
+    
+    input_buffer = IOBufferMemoryDescriptor::inTaskWithPhysicalMask(kernel_task, kIODirectionInOut | kIOMemoryPhysicallyContiguous | kIOMemoryKernelUserShared | kIOMapInhibitCache, dbuff_size, DMA_BIT_MASK(64));
+    if (!input_buffer)
+        goto release_resources;
+    input_buffer->prepare();
 
     return kIOReturnSuccess;
 release_resources:
@@ -584,4 +777,9 @@ void IntelPreciseTouchStylusDriver::freeDMAResources()
         freeDMAMemory(&tx_buffer);
     if (report_desc_buffer.vaddr)
         freeDMAMemory(&report_desc_buffer);
+    
+    if (input_buffer) {
+        input_buffer->complete();
+        OSSafeReleaseNULL(input_buffer);
+    }
 }

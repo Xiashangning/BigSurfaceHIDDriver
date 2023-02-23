@@ -21,46 +21,31 @@ void SurfaceHIDDriver::eventReceived(SurfaceHIDNub *sender, SurfaceHIDDeviceType
     switch (device) {
         case SurfaceLegacyKeyboardDevice:
         case SurfaceKeyboardDevice:
-            memcpy(kbd_report, buffer, len);
-            kbd_report_len = len;
+            kbd_report->setLength(len);
+            kbd_report->writeBytes(0, buffer, len);
             kbd_interrupt->interruptOccurred(nullptr, this, 0);
             break;
         case SurfaceTouchpadDevice:
-            if (tpd_interrupt) {
-                memcpy(tpd_report, buffer, len);
-                tpd_report_len = len;
+            if (!legacy) {
+                tpd_report->setLength(len);
+                tpd_report->writeBytes(0, buffer, len);
                 tpd_interrupt->interruptOccurred(nullptr, this, 0);
             }
             break;
         default:
-            LOG("WTF? Unknown event type");
+            LOG("WTF? Unknown event type %d", device);
             break;
     }
 }
 
 void SurfaceHIDDriver::keyboardInputReceived(IOInterruptEventSource *sender, int count) {
-    IOBufferMemoryDescriptor *report = IOBufferMemoryDescriptor::withBytes(kbd_report, kbd_report_len, kIODirectionNone);
-    if (keyboard->handleReport(report) != kIOReturnSuccess)
+    if (keyboard->handleReport(kbd_report) != kIOReturnSuccess)
         LOG("Handle keyboard report error!");
-    
-    OSSafeReleaseNULL(report);
 }
 
 void SurfaceHIDDriver::touchpadInputReceived(IOInterruptEventSource *sender, int count) {
-    IOBufferMemoryDescriptor *report = IOBufferMemoryDescriptor::withBytes(tpd_report, tpd_report_len, kIODirectionNone);
-    if (touchpad->handleReport(report) != kIOReturnSuccess)
+    if (touchpad->handleReport(tpd_report) != kIOReturnSuccess)
         LOG("Handle touchpad report error!");
-
-    OSSafeReleaseNULL(report);
-}
-
-bool SurfaceHIDDriver::init(OSDictionary *properties) {
-    if (!super::init(properties))
-        return false;
-    
-    memset(kbd_report, 0, sizeof(kbd_report));
-    memset(tpd_report, 0, sizeof(tpd_report));
-    return true;
 }
 
 IOService *SurfaceHIDDriver::probe(IOService *provider, SInt32 *score) {
@@ -114,6 +99,7 @@ bool SurfaceHIDDriver::start(IOService *provider) {
         LOG("Could not start keyboard device");
         goto exit;
     }
+    kbd_report = IOBufferMemoryDescriptor::withCapacity(32, kIODirectionNone);
     kbd_interrupt = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &SurfaceHIDDriver::keyboardInputReceived));
     if (!kbd_interrupt) {
         LOG("Could not create keyboard interrupt event!");
@@ -139,6 +125,7 @@ bool SurfaceHIDDriver::start(IOService *provider) {
             LOG("Could not start Surface touchpad device");
             goto exit;
         }
+        tpd_report = IOBufferMemoryDescriptor::withCapacity(32, kIODirectionNone);
         tpd_interrupt = IOInterruptEventSource::interruptEventSource(this, OSMemberFunctionCast(IOInterruptEventAction, this, &SurfaceHIDDriver::touchpadInputReceived));
         if (!tpd_interrupt) {
             LOG("Could not create touchpad interrupt event!");
@@ -160,10 +147,6 @@ void SurfaceHIDDriver::stop(IOService *provider) {
     super::stop(provider);
 }
 
-void SurfaceHIDDriver::free() {
-    super::free();
-}
-
 void SurfaceHIDDriver::releaseResources() {
     nub->unregisterHIDEvent(this);
     if (kbd_interrupt) {
@@ -177,6 +160,9 @@ void SurfaceHIDDriver::releaseResources() {
         OSSafeReleaseNULL(tpd_interrupt);
     }
     OSSafeReleaseNULL(work_loop);
+    
+    OSSafeReleaseNULL(kbd_report);
+    OSSafeReleaseNULL(tpd_report);
     
     if (keyboard) {
         keyboard->stop(this);

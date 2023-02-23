@@ -9,7 +9,6 @@
 #ifndef IntelPreciseTouchStylusUserClient_hpp
 #define IntelPreciseTouchStylusUserClient_hpp
 
-#include <IOKit/IOService.h>
 #include <IOKit/IOUserClient.h>
 
 #include "IntelPreciseTouchStylusDriver.hpp"
@@ -18,8 +17,8 @@ class EXPORT IntelPreciseTouchStylusUserClient : public IOUserClient {
     OSDeclareDefaultStructors(IntelPreciseTouchStylusUserClient);
     
 public:
-    void stop(IOService* provider) override;
     bool start(IOService* provider) override;
+    void stop(IOService* provider) override;
     
     bool initWithTask(task_t owningTask, void* securityToken, UInt32 type, OSDictionary* properties) override;
 
@@ -33,14 +32,17 @@ private:
     static const IOExternalMethodDispatch methods[kNumberOfMethods];
     IntelPreciseTouchStylusDriver*  driver {nullptr};
     task_t task {nullptr};
+    bool initial {true};
     
     static IOReturn sMethodGetDeviceInfo(OSObject *target, void *ref, IOExternalMethodArguments *args);
     static IOReturn sMethodReceiveInput(OSObject *target, void *ref, IOExternalMethodArguments *args);
     static IOReturn sMethodSendHIDReport(OSObject *target, void *ref, IOExternalMethodArguments *args);
+    static IOReturn sMethodToggleProcessingStatus(OSObject *target, void *ref, IOExternalMethodArguments *args);
     
     IOReturn getDeviceInfo(void *ref, IOExternalMethodArguments* args);
     IOReturn receiveInput(void *ref, IOExternalMethodArguments* args);
     IOReturn sendHIDReport(void *ref, IOExternalMethodArguments* args);
+    IOReturn toggleProcessingStatus(void *ref, IOExternalMethodArguments* args);
 };
 
 #endif /* IntelPreciseTouchStylusUserClient_hpp */

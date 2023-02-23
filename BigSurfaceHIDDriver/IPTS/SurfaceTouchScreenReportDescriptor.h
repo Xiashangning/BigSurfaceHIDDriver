@@ -9,7 +9,6 @@
 #ifndef SurfaceTouchScreenReportDescriptor_h
 #define SurfaceTouchScreenReportDescriptor_h
 
-#define IPTS_TOUCH_REPORT_ID       0x40
 #define IPTS_TOUCH_FEAT_REPORT_ID  0x41
 
 static const UInt8 ipts_virt_descriptor[] = {
@@ -305,9 +304,6 @@ static const UInt8 ipts_virt_descriptor[] = {
     0x81, 0x02,        //   Input (Variable)
     0x85, IPTS_TOUCH_FEAT_REPORT_ID,        //   Report ID (65)
     0x09, 0x55,        //   Usage (Contact Count Maximum)
-    0xB1, 0x02,        //   Feature (Variable,Non-volatile)
-    0x85, 0x05,        //   Report ID (5)   (Used to enable multitouch on newer devices)
-    0x09, 0x52,        //   Usage (Device Mode)
     0xB1, 0x02,        //   Feature (Variable,Non-volatile)
     0xC0,              // End Collection
     0x05, 0x0D,        // Usage Page (Digitizer)
