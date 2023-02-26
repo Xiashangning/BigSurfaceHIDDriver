@@ -179,8 +179,11 @@ void IntelPreciseTouchStylusDriver::releaseResources() {
 }
 
 IOBufferMemoryDescriptor *IntelPreciseTouchStylusDriver::getReceiveBuffer() {
-    input_buffer->retain();
-    return input_buffer;
+    if (input_buffer) {
+        input_buffer->retain();
+        return input_buffer;
+    } else
+        return nullptr;
 }
 
 IOReturn IntelPreciseTouchStylusDriver::getDeviceInfo(IPTSDeviceInfo *info) {

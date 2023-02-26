@@ -52,7 +52,11 @@ IOReturn IntelPreciseTouchStylusUserClient::externalMethod(uint32_t selector, IO
 }
 
 IOReturn IntelPreciseTouchStylusUserClient::clientMemoryForType(UInt32 type, IOOptionBits *options, IOMemoryDescriptor **memory) {
-    *memory = driver->getReceiveBuffer();
+    IOMemoryDescriptor *desc = driver->getReceiveBuffer();
+    if (!desc)
+        return kIOReturnError;
+    
+    *memory = desc;
     *options |= kIOMapReadOnly;
     return kIOReturnSuccess;
 }
