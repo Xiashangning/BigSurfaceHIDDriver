@@ -8,8 +8,6 @@
 
 #include "SurfaceHIDDevice.hpp"
 
-#define LOG(str, ...)    IOLog("%s::%s " str "\n", "SurfaceHIDDevice", device_name, ##__VA_ARGS__)
-
 #define super IOHIDDevice
 OSDefineMetaClassAndStructors(SurfaceHIDDevice, IOHIDDevice);
 

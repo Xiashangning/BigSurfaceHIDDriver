@@ -9,8 +9,6 @@
 #include "IntelPreciseTouchStylusDriver.hpp"
 #include "SurfaceTouchScreenDevice.hpp"
 
-#define LOG(str, ...)    IOLog("%s::" str "\n", "IntelPreciseTouchStylusDriver", ##__VA_ARGS__)
-
 #define IPTS_BUSY_TIMEOUT       5
 #define IPTS_ACTIVE_TIMEOUT     10
 #define IPTS_IDLE_TIMEOUT       50
@@ -129,7 +127,7 @@ IOReturn IntelPreciseTouchStylusDriver::setPowerState(unsigned long whichState, 
                 IOSleep(25);
             }
             current_doorbell = 0;
-            LOG("Going to sleep");
+            DBG_LOG("Going to sleep");
         }
     } else {
         if (!awake) {
@@ -145,7 +143,7 @@ IOReturn IntelPreciseTouchStylusDriver::setPowerState(unsigned long whichState, 
             if (ret != kIOReturnSuccess)
                 LOG("Failed to restart IPTS device from sleep!");
             awake = true;
-            LOG("Woke up");
+            DBG_LOG("Woke up");
         }
     }
     return kIOPMAckImplied;
@@ -210,7 +208,7 @@ IOReturn IntelPreciseTouchStylusDriver::getDeviceInfo(IPTSDeviceInfo *info) {
         }
         UInt16 size = sizeof(info->meta_data);
         if (frame->size - sizeof(frame) < size) {
-            LOG("Warning, metadata size mismatch, need %hu received %lu", size, frame->size - sizeof(frame));
+            DBG_LOG("Warning, metadata size mismatch, need %hu received %lu", size, frame->size - sizeof(frame));
             size = frame->size - sizeof(frame);
         }
         memcpy(&info->meta_data, frame->data, size);
@@ -245,13 +243,13 @@ IOReturn IntelPreciseTouchStylusDriver::waitInput(UInt64 *size) {
 }
 
 void IntelPreciseTouchStylusDriver::enterMultitouch() {
-    LOG("Multitouch processing daemon attached, enabling multitouch...");
+    DBG_LOG("Multitouch processing daemon attached, enabling multitouch...");
     multitouch = true;
     status_interrupt->interruptOccurred(nullptr, this, 0);
 }
 
 void IntelPreciseTouchStylusDriver::exitMultitouch() {
-    LOG("Returning to single touch...");
+    DBG_LOG("Returning to single touch...");
     multitouch = false;
     status_interrupt->interruptOccurred(nullptr, this, 0);
 }
@@ -286,7 +284,7 @@ IOReturn IntelPreciseTouchStylusDriver::handleHIDReportGated(IPTSHIDReport *repo
             report_size = sizeof(IPTSStylusHIDReport)+1;
             break;
         default:
-            LOG("Unknown report received! report id: 0x%x", report->report_id);
+            DBG_LOG("Unknown report received! report id: 0x%x", report->report_id);
             return kIOReturnInvalid;
     }
     report_to_send->setLength(report_size);
@@ -323,7 +321,7 @@ void IntelPreciseTouchStylusDriver::pollTouchData(IOTimerEventSource *sender) {
             timer->setTimeoutMS(IPTS_IDLE_TIMEOUT);
         }
     } else if (doorbell < current_doorbell) {  // MEI device has been reset
-        LOG("MEI device has reset! Flushing buffers...");
+        DBG_LOG("MEI device has reset! Flushing buffers...");
         for (int i = 0; i < IPTS_BUFFER_NUM; i++)
             refillBuffer(i, false);     // non blocking feedback
         current_doorbell = doorbell;
@@ -371,7 +369,7 @@ void IntelPreciseTouchStylusDriver::pollTouchData(IOTimerEventSource *sender) {
                     command_gate->commandWakeup(&get_feature);
                     break;
                 default:
-                    LOG("Got data with type %d", header->type);
+                    DBG_LOG("Got data with type %d", header->type);
                     break;
             }
         }
@@ -647,7 +645,7 @@ void IntelPreciseTouchStylusDriver::handleMessage(SurfaceManagementEngineClient 
                 ret = startDevice();
             break;
         default:
-            LOG("Unhandled response code: 0x%08x", rsp->code);
+            DBG_LOG("Unhandled response code: 0x%08x", rsp->code);
             break;
     }
     if (ret != kIOReturnSuccess) {

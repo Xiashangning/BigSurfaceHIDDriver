@@ -9,8 +9,6 @@
 #include "SurfaceTouchScreenDevice.hpp"
 #include "SurfaceTouchScreenReportDescriptor.h"
 
-#define LOG(str, ...)    IOLog("%s::" str "\n", "SurfaceTouchScreenDevice", ##__VA_ARGS__)
-
 #define super IOHIDDevice
 OSDefineMetaClassAndStructors(SurfaceTouchScreenDevice, IOHIDDevice);
 

@@ -9,8 +9,6 @@
 #include "SurfaceHIDDriver.hpp"
 #include "SurfaceHIDDevice.hpp"
 
-#define LOG(str, ...)    IOLog("%s::" str "\n", "SurfaceHIDDriver", ##__VA_ARGS__)
-
 #define super IOService
 OSDefineMetaClassAndStructors(SurfaceHIDDriver, IOService)
 
@@ -33,7 +31,7 @@ void SurfaceHIDDriver::eventReceived(SurfaceHIDNub *sender, SurfaceHIDDeviceType
             }
             break;
         default:
-            LOG("WTF? Unknown event type %d", device);
+            DBG_LOG("WTF? Unknown event type %d", device);
             break;
     }
 }
